@@ -5,6 +5,14 @@ var alchemyapi = new AlchemyAPI();
 
 var express = require('express');
 var consolidate = require('consolidate');
+var Twit = require('twit')
+var T = new Twit({
+    consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o'
+  , consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1'
+  , access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED'
+  , access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'
+});
+
 
 var stoplist = ['a', "a's", 'able', 'about', 'above', 'according', 'accordingly', 'across', 
 'actually', 'after', 'afterwards', 'again', 'against', "ain't", 'all', 'allow', 
@@ -98,6 +106,7 @@ getURL();
 
 //title();
 function keywords(url) {
+	var results;
 	alchemyapi.keywords('url', url, null, function(response) {
 		results = response['keywords'];
 		var arrayLength = results.length;
@@ -105,7 +114,43 @@ function keywords(url) {
 		for(var i=0; i<arrayLength; i++) {
 			console.log('\t\t' + results[i].text);
 		}
-	})
+		if(results.length)
+		{
+//since:2011-11-11
+		T.get('users/suggestions/:slug', { slug: 'government' }, function (err, reply) {
+  //  ...
+  		userList=JSON.parse(JSON.stringify(reply));
+  		if(reply.users.length>0)
+  		{
+    		for(i=0;i<reply.users.length;i++)
+  			{ 
+  	 			//console.log(reply.users[i].name+"\n");
+  	 			var query=results[0].text+' OR '+ results[1].text+' OR '+ results[2].text+ ' from:'+userList.users[i].screen_name;
+  	 			var query1='from:'+userList.users[i].screen_name; 
+  	 			//console.log(query1);
+  	 			tweetdisplay(query,userList.users[i].screen_name);
+  				
+  			}
+  		}
+		});
+		}
+});
+}
+
+function tweetdisplay(query, expert)
+{
+T.get('search/tweets', { q: query, count:100  }, function(err, reply1) {
+
+  				console.log(err);
+  				if(reply1.statuses.length>0)
+  				{
+  				console.log(reply1.statuses[0].user['name']);
+  				for(var i=0;i<reply1.statuses.length;i++)
+  				console.log(reply1.statuses[i].text);
+  				}
+				});
+
+
 }
 
 function title(url) {
