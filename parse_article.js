@@ -1,18 +1,6 @@
 
-
 var AlchemyAPI = require("./alchemyapi");
 var alchemyapi = new AlchemyAPI();
-
-var express = require('express');
-var consolidate = require('consolidate');
-var Twit = require('twit')
-var T = new Twit({
-    consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o'
-  , consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1'
-  , access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED'
-  , access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'
-});
-
 
 var stoplist = ['a', "a's", 'able', 'about', 'above', 'according', 'accordingly', 'across', 
 'actually', 'after', 'afterwards', 'again', 'against', "ain't", 'all', 'allow', 
@@ -44,7 +32,7 @@ var stoplist = ['a', "a's", 'able', 'about', 'above', 'according', 'accordingly'
 'inc', 'indeed', 'indicate', 'indicated', 'indicates', 'inner', 'insofar', 
 'instead', 'into', 'inward', 'is', "isn't", 'it', "it'd", "it'll", "it's", 'its', 
 'itself', 'j', 'just', 'k', 'keep', 'keeps', 'kept', 'know', 'knows', 'known', 
-'l', 'last', 'lately', 'later', 'latimes.com', 'latter', 'latterly', 'least', 'less', 'lest', 
+'l', 'last', 'lately', 'later', 'latimescom', 'latter', 'latterly', 'least', 'less', 'lest', 
 'let', "let's", 'like', 'liked', 'likely', 'little', 'look', 'looking', 'looks', 
 'ltd', 'm', 'mainly', 'many', 'may', 'maybe', 'me', 'mean', 'meanwhile', 
 'merely', 'might', 'more', 'moreover', 'most', 'mostly', 'much', 'must', 'my', 
@@ -82,121 +70,152 @@ var stoplist = ['a', "a's", 'able', 'about', 'above', 'according', 'accordingly'
 'whom', 'whose', 'why', 'will', 'willing', 'wish', 'with', 'within', 'without', 
 "won't", 'wonder', 'would', 'would', "wouldn't", 'x', 'y', 'yes', 'yet', 'you', 
 "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', 
-'z', 'zero', '-']
+'z', 'zero'];
+
+var punct_list = ['.', ',', ':', ';', "\'", "\"", '\\', '/', '?', '<', '>', '-', '_', '+', 
+'=', '~', '!', '#', '$', '%', '&', '^', '*', '[', ']', '{', '}', '(', ')', '`']
 
 
+var searchlist = ['believe', 'opinion', 'think'];
 
-var art_title = ""
-//var keywords = new Array();
+var url2 = "http://www.latimes.com/world/worldnow/la-fg-wn-ukraine-osce-confrontation-20140425,0,2261628.story#axzz302XJ0nZP";
+var url = "http://www.latimes.com/nation/politics/politicsnow/la-pn-immigration-congress-20140425,0,6336349.story#axzz302YCRANC";
 
 
+var text = "";
+var author = "";
 
-function getURL() {
-	console.log("URL of article: ");
-	process.stdin.resume();
-	process.stdin.setEncoding('utf8');
-	var util = require('util');
-	
-	process.stdin.on('data', function(data) {
-		var url = data.toString();
-		title(url);
-	});
-}
-getURL();
+function main() {
+	console.log('\n')
+	alchemyapi.text('url', url, null, function(response) {
+		text = response['text'];
+		alchemyapi.title('url', url, null, function(response) {
+			var art_title = response['title'];
+			text = art_title + ' ' + text;
 
-//title();
-function keywords(url) {
-	var results;
-	alchemyapi.keywords('url', url, null, function(response) {
-		results = response['keywords'];
-		var arrayLength = results.length;
-		console.log('\tKeywords: ')
-		for(var i=0; i<arrayLength; i++) {
-			console.log('\t\t' + results[i].text);
-		}
-/*		if(results.length)
-		{
-//since:2011-11-11
-		T.get('users/suggestions/:slug', { slug: 'government' }, function (err, reply) {
-  //  ...
-  		userList=JSON.parse(JSON.stringify(reply));
-  		if(reply.users.length>0)
-  		{
-    		for(i=0;i<reply.users.length;i++)
-  			{ 
-  	 			//console.log(reply.users[i].name+"\n");
-  	 			var query=results[0].text+' OR '+ results[1].text+' OR '+ results[2].text+ ' from:'+userList.users[i].screen_name;
-  	 			var query1='from:'+userList.users[i].screen_name; 
-  	 			//console.log(query1);
-  	 			tweetdisplay(query,userList.users[i].screen_name);
-  				
-  			}
-  		}
-		});
-		}*/
-});
-}
+			alchemyapi.author('url', url, null, function(response) {
+				author = response['author'];
+				text = text.replace("By " + author, '');
+				text = text.replace(author, '');
 
-function tweetdisplay(query, expert)
-{
-T.get('search/tweets', { q: query, count:100  }, function(err, reply1) {
+				var tempstr = "";
 
-  				console.log(err);
-  				if(reply1.statuses.length>0)
-  				{
-  				console.log(reply1.statuses[0].user['name']);
-  				for(var i=0;i<reply1.statuses.length;i++)
-  				console.log(reply1.statuses[i].text);
-  				}
+				for(var p in punct_list) {
+					while(text.indexOf(punct_list[p])>=0) {
+						text = text.replace(punct_list[p], '');
+					}
+				}
+
+				text = text.split(" ");
+
+				var index = text.indexOf('\n');
+				do {
+					if (index > -1) {
+						text.splice(index, 1);
+					}
+					index = text.indexOf('\n');
+				} while (index > -1);
+
+				var index = text.indexOf('\t');
+				do {
+					if (index > -1) {
+						text.splice(index, 1);
+					}
+					index = text.indexOf('\t');
+				} while (index > -1);
+
+				var index = text.indexOf('');
+				do {
+					if (index > -1) {
+						text.splice(index, 1);
+					}
+					index = text.indexOf('');
+				} while (index > -1);
+
+				var templist = [];
+
+				for(var word in text) {
+					if (stoplist.indexOf(text[word])>= 0) {
+						continue;
+					}
+					else {	
+						templist.push(text[word]);
+					}
+				}
+				text = templist;
+
+				text = text.join(" ");
+				text = text.toLowerCase();
+
+				alchemyapi.entities('text', text, null, function(response) {
+					console.log("#### Entities ####");
+					var query = [];
+					var positions = [];
+					var people = [];
+					var max = 5;
+					var people_count = 0;
+					for(var entity in response['entities']) {
+						var qlen = query.length;
+						if(qlen==max) {
+							break;
+						}
+						if(response['entities'][entity]['type']=='Person') {
+							var person = response['entities'][entity]['text'].split(" ");
+							var len = person.length;
+							person = person[len-1];
+							query.push(person);
+							people.push(person);
+							people_count+= 1;
+							if(people_count==2) {
+								max+= 1;
+								people_count = 0;
+							}
+						}
+						else if(response['entities'][entity]['type']=="JobTitle") {
+							positions.push(response['entities'][entity]['text']);
+							query.push(response['entities'][entity]['text']);
+							max+= 1;
+						}
+						else {
+							query.push(response['entities'][entity]['text']);
+						}
+					}
+					var num = 1;
+					for(var i in query) {
+						console.log(String(num) + '. ' + query[i]);
+						num+= 1;
+					}
+					console.log('\n#### People ####');
+					var num = 1;
+					for(var i in people) {
+						console.log(String(num) + '. ' + people[i]);
+						num+= 1;
+					}
+					console.log('\n#### Job Titles ####');
+					var num = 1;
+					for(var i in positions) {
+						console.log(String(num) + '. ' + positions[i]);
+						num+= 1;
+					}
+					console.log('\n');
 				});
 
-
-}
-
-function title(url) {
-	alchemyapi.title('url', url, null, function(response) {
-		art_title = response['title'];
-		art_title = art_title.toLowerCase();
-		art_title = art_title.split(" ");
-		var temp = new Array();
-		for(var i in art_title) {
-			if(stoplist.indexOf(art_title[i])>=0) {
-				continue;
-			}
-			else {
-				temp.push(art_title[i])
-			}
-		}
-		art_title = temp
-		console.log('\n\tArticle Keywords: [' + art_title + ']\n');
-		//$("#art_title").append(response['title']);
-	})
-	keywords(url);
-}
-/*
-function concepts(url) {
-	alchemyapi.concepts('url', url, null, function(response) {
-		results = response['concepts'];
-		var arrayLength = results.length;
-		console.log('\n\tConcepts: ')
-		for(var i=0; i<arrayLength; i++) {
-			console.log('\t\t' + results[i].text);
-		}
-	})
-	category(url);
-}
-
-function category(url) {
-	alchemyapi.category('url', url, null, function(response) {
-		console.log('\n\tCategory: ' + response['category'] + '\n\n');
-	})
-}
+/*				alchemyapi.keywords('text', text, null, function(response) {
+					console.log("#### Keywords ####");
+					for(var keyword in response['keywords']) {
+						console.log(response['keywords'][keyword]['text']);
+					}
+					console.log('\n');
+				});
 */
+				console.log(text);
+				console.log('\n');
+				return text;
+			})
+			return text;
+		});
+	});
+}
 
-
-
-
-
-
-
+main();
 
