@@ -3,6 +3,7 @@
 var AlchemyAPI = require("./alchemyapi");
 var alchemyapi = new AlchemyAPI();
 
+var $ = require('jquery');
 var express = require('express');
 var consolidate = require('consolidate');
 var Twit = require('twit')
@@ -108,12 +109,13 @@ getURL();
 
 function keywords(url) {
 	var results;
+	var resultJSON = {};
 	alchemyapi.keywords('url', url, null, function(response) {
 		results = response['keywords'];
 		var arrayLength = results.length;
-		console.log('\tKeywords: ')
+		//console.log('\tKeywords: ')
 		for(var i=0; i<arrayLength; i++) {
-			console.log('\t\t' + results[i].text);
+			//console.log('\t\t' + results[i].text);
 		}
 	if(results.length)
 		{
@@ -126,20 +128,40 @@ function keywords(url) {
   				if(reply1.statuses.length>0)
   				{
   					ctr=0;
-  				console.log('------------------------------------------------------------------------------')
-  				for(var i=0;i<reply1.statuses.length;i++)
-  				{
-  				if(reply1.statuses[i].text.indexOf('RT')==-1)
-  				{
-  					ctr++;
-  					console.log(ctr+' ) '+ reply1.statuses[i].user['name']+'\n'+ reply1.statuses[i].text+'\n');
+  					console.log('------------------------------------------------------------------------------');
+  					for (var key in reply1.statuses) {
+  						if(reply1.statuses[key].retweeted==false) {
+	  						if(ctr<5) {
+	  							var name = reply1.statuses[key].user['name'];
+
+	  							var handle = reply1.statuses[key].user['screen_name'];
+	  							var text = reply1.statuses[key].text;
+	  							var image = reply1.statuses[key].profile_image_url;
+
+	  							resultJSON[key] = {};
+	  							resultJSON[key].name = reply1.statuses[key].user['name'];
+	  							resultJSON[key].handle = reply1.statuses[key].user['screen_name'];
+	  							resultJSON[key].text = reply1.statuses[key].text;
+	  							resultJSON[key].image = reply1.statuses[key].user['profile_image_url'];
+	
+		  						//resultJSON[key] = reply1.statuses[key];
+	  							ctr+= 1;
+	  						}
+	  					}
+  					}
+  					console.log(resultJSON);
+  		//		for(var i=0;i<reply1.statuses.length;i++)
+  		//		{
+  		//		if(reply1.statuses[i].text.indexOf('RT')==-1)
+  		//		{
+  		//			ctr++;
+  		//			console.log(ctr+' ) '+ reply1.statuses[i].user['name']+'\n'+ reply1.statuses[i].text+'\n');
+  		//		}
   				}
-  				}
-  				console.log(query);
-  				id=reply1.statuses[i-1].id;
-  				getMoreTweets(query,id,ctr);
-  				}
-				});
+  		//		console.log(query);
+  		//		id=reply1.statuses[i-1].id;
+  		//		getMoreTweets(query,id,ctr);
+  				});
 
 		}
 		/*T.get('users/suggestions/:slug', { slug: 'government' }, function (err, reply) {
@@ -202,30 +224,10 @@ function title(url) {
 			}
 		}
 		art_title = temp
-		console.log('\n\tArticle Keywords: [' + art_title + ']\n');
-		//$("#art_title").append(response['title']);
+	//	console.log('\n\tArticle Keywords: [' + art_title + ']\n');
 	})
 	keywords(url);
 }
-/*
-function concepts(url) {
-	alchemyapi.concepts('url', url, null, function(response) {
-		results = response['concepts'];
-		var arrayLength = results.length;
-		console.log('\n\tConcepts: ')
-		for(var i=0; i<arrayLength; i++) {
-			console.log('\t\t' + results[i].text);
-		}
-	})
-	category(url);
-}
-
-function category(url) {
-	alchemyapi.category('url', url, null, function(response) {
-		console.log('\n\tCategory: ' + response['category'] + '\n\n');
-	})
-}
-*/
 
 
 

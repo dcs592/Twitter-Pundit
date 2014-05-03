@@ -86,10 +86,12 @@ function getURL() {
 	process.stdin.resume();
 	process.stdin.setEncoding('utf8');
 	var util = require('util');
+	var test;
 	
 	process.stdin.on('data', function(data) {
 		var url = data.toString();
-		main(url);
+		test = main(url);
+		console.log(test);
 	});
 }
 getURL();
@@ -206,7 +208,7 @@ function main(url) {
 						console.log(String(num) + '. ' + positions[i]);
 						num+= 1;
 					}
-					console.log('\n');
+					//console.log('\n');
 				});
 
 /*				alchemyapi.keywords('text', text, null, function(response) {
@@ -217,8 +219,8 @@ function main(url) {
 					console.log('\n');
 				});
 */
-				console.log(text);
-				console.log('\n');
+				//console.log(text);
+				//console.log('\n');
 				return text;
 			})
 			return text;
