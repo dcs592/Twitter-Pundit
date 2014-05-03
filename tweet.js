@@ -105,6 +105,7 @@ function getURL() {
 getURL();
 
 //title();
+
 function keywords(url) {
 	var results;
 	alchemyapi.keywords('url', url, null, function(response) {
@@ -114,11 +115,35 @@ function keywords(url) {
 		for(var i=0; i<arrayLength; i++) {
 			console.log('\t\t' + results[i].text);
 		}
-/*		if(results.length)
+	if(results.length)
 		{
-//since:2011-11-11
-		T.get('users/suggestions/:slug', { slug: 'government' }, function (err, reply) {
-  //  ...
+
+  	 			var query=results[0].text+'  '+ results[1].text ;
+  	 			var id;
+		T.get('search/tweets', { q: query, count:200  }, function(err, reply1) {
+
+  				//console.log(err)
+  				if(reply1.statuses.length>0)
+  				{
+  					ctr=0;
+  				console.log('------------------------------------------------------------------------------')
+  				for(var i=0;i<reply1.statuses.length;i++)
+  				{
+  				if(reply1.statuses[i].text.indexOf('RT')==-1)
+  				{
+  					ctr++;
+  					console.log(ctr+' ) '+ reply1.statuses[i].user['name']+'\n'+ reply1.statuses[i].text+'\n');
+  				}
+  				}
+  				console.log(query);
+  				id=reply1.statuses[i-1].id;
+  				getMoreTweets(query,id,ctr);
+  				}
+				});
+
+		}
+		/*T.get('users/suggestions/:slug', { slug: 'government' }, function (err, reply) {
+  //
   		userList=JSON.parse(JSON.stringify(reply));
   		if(reply.users.length>0)
   		{
@@ -132,24 +157,33 @@ function keywords(url) {
   				
   			}
   		}
-		});
-		}*/
+		});*/
+		
 });
 }
 
-function tweetdisplay(query, expert)
+function getMoreTweets(query,id,ctr)
 {
-T.get('search/tweets', { q: query, count:100  }, function(err, reply1) {
 
-  				console.log(err);
+T.get('search/tweets', { q: query, count:200 , max_id:id }, function(err, reply1) {
+
+  				//console.log(err)
   				if(reply1.statuses.length>0)
   				{
-  				console.log(reply1.statuses[0].user['name']);
+  				console.log('------------------------------------------------------------------------------')
   				for(var i=0;i<reply1.statuses.length;i++)
-  				console.log(reply1.statuses[i].text);
+  				{
+  				if(reply1.statuses[i].text.indexOf('RT')==-1)
+  				{
+  					ctr++;
+  					console.log(ctr+' ) '+ reply1.statuses[i].user['name']+'\n'+ reply1.statuses[i].text+'\n');
+  				}
+  				}
+  				console.log(query);
+  				id=reply1.statuses[i-1].id;
+  				getMoreTweets(query,id,ctr);
   				}
 				});
-
 
 }
 
