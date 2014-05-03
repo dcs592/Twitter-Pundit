@@ -134,15 +134,14 @@ function keywords(url) {
 	  						if(ctr<5) {
 	  							var name = reply1.statuses[key].user['name'];
 
-	  							var handle = reply1.statuses[key].user['screen_name'];
-	  							var text = reply1.statuses[key].text;
-	  							var image = reply1.statuses[key].profile_image_url;
+	  							var image = reply1.statuses[key].user['profile_banner_url'] + '/web';
 
 	  							resultJSON[key] = {};
 	  							resultJSON[key].name = reply1.statuses[key].user['name'];
 	  							resultJSON[key].handle = reply1.statuses[key].user['screen_name'];
 	  							resultJSON[key].text = reply1.statuses[key].text;
-	  							resultJSON[key].image = reply1.statuses[key].user['profile_image_url'];
+	  							resultJSON[key].profile_image = reply1.statuses[key].user['profile_image_url'];
+	  							resultJSON[key].background_image = image;
 	
 		  						//resultJSON[key] = reply1.statuses[key];
 	  							ctr+= 1;
