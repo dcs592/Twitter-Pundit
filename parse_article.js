@@ -78,14 +78,23 @@ var punct_list = ['.', ',', ':', ';', "\'", "\"", '\\', '/', '?', '<', '>', '-',
 
 var searchlist = ['believe', 'opinion', 'think'];
 
-var url2 = "http://www.latimes.com/world/worldnow/la-fg-wn-ukraine-osce-confrontation-20140425,0,2261628.story#axzz302XJ0nZP";
-var url3 = "http://www.latimes.com/nation/politics/politicsnow/la-pn-immigration-congress-20140425,0,6336349.story#axzz302YCRANC";
-var url = "http://www.latimes.com/local/la-sp-donald-sterling-clippers-20140429,0,220830.story#axzz30IE7AMiN";
-
 var text = "";
 var author = "";
 
-function main() {
+function getURL() {
+	console.log("URL of article: ");
+	process.stdin.resume();
+	process.stdin.setEncoding('utf8');
+	var util = require('util');
+	
+	process.stdin.on('data', function(data) {
+		var url = data.toString();
+		main(url);
+	});
+}
+getURL();
+
+function main(url) {
 	console.log('\n')
 	alchemyapi.text('url', url, null, function(response) {
 		text = response['text'];
@@ -216,6 +225,4 @@ function main() {
 		});
 	});
 }
-
-main();
 
