@@ -254,7 +254,8 @@ function getQuery(url) {
 					var uQ = updateQuery(query, people, positions);
 					var cQ = compileQueries(uQ);
 					//var intResult=getTweets(cQ);
-					return getTweets(cQ);
+					var gT = getTweets(cQ);
+					printQuery();
 					
 					// if(typeof tempJSON!='undefined') {
 					// 	console.log(tempJSON);
@@ -314,15 +315,16 @@ function compileQueries(array) {
 function getTweets(queries) {
 	var len = queries.length - 1;
 	var query = 0;
-	while (count < 5 && query<20) {
+	while (count<5 && query<20) {
 		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
 			if (!response) {
 				console.log(err);
 			}
 			else if(response.statuses.length>0) {
 				for (var key in response.statuses) {
-					if(response.statuses[key].retweeted==false && response.statuses[key].user['verified']==true && response.statuses[key].text.indexOf('.com')<0 && response.statuses[key].user['friends_count']>1000) {
+					if(count<5 && response.statuses[key].retweeted==false && response.statuses[key].user['verified']==true && response.statuses[key].text.indexOf('.com')<0 && response.statuses[key].user['friends_count']>1000) {
 						count++;
+						console.log(count-1);
 						var id = response.statuses[key].id;
 						resultJSON[id] = {};
 						resultJSON[id].name = response.statuses[key].user['name'];
@@ -332,9 +334,12 @@ function getTweets(queries) {
 						resultJSON[id].background_image = response.statuses[key].user['profile_banner_url'] + '/web';
 						resultJSON[id].followers = response.statuses[key].user['friends_count'];
 						if(count==5) {
-							console.log(resultJSON);
-							return 1;
+							//console.log(resultJSON);
+							break;
 						}
+					}
+					if(count==5) {
+						break;
 					}
 				}
 			}
@@ -344,7 +349,7 @@ function getTweets(queries) {
 } 
 
 function printQuery() {
- 	console.log(top5);
+ 	console.log(resultJSON);
  	return;
 }
 
