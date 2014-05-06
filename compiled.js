@@ -312,45 +312,34 @@ function compileQueries(array) {
 }
 
 function getTweets(queries) {
-	//console.log(queries);
-	var i = 0;
 	var len = queries.length - 1;
 	var query = 0;
-	while (query<20) {
-	//	console.log(String(query) + '/' + String(queries.length-1));
-	//	console.log(queries[query]);
+	while (count < 5 && query<20) {
 		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
-	//		console.log(queries[query]);
 			if (!response) {
 				console.log(err);
 			}
 			else if(response.statuses.length>0) {
 				for (var key in response.statuses) {
-					if(response.statuses[key].retweeted==false && response.statuses[key].user['verified']==true) {
-
+					if(response.statuses[key].retweeted==false && response.statuses[key].user['verified']==true && response.statuses[key].text.indexOf('.com')<0 && response.statuses[key].user['friends_count']>1000) {
 						count++;
-
-						alchemyapi.entities('text', response.statuses[key].name, null, function(response) {
-							if(response['entities'][0]['type']=='Person') {
-
-								var id = response.statuses[key].id;
-								resultJSON[id] = {};
-								resultJSON[id].name = response.statuses[key].user['name'];
-								resultJSON[id].handle = response.statuses[key].user['screen_name'];
-								resultJSON[id].text	= response.statuses[key].text;
-								resultJSON[id].profile_image = response.statuses[key].user['profile_image_url'];
-								resultJSON[id].background_image = response.statuses[key].user['profile_banner_url'] + '/web';
-								resultJSON[id].followers = response.statuses[key].user['friends_count'];
-								if(count==5) {
-									console.log(resultJSON);
-								}
-							}
-						});
+						var id = response.statuses[key].id;
+						resultJSON[id] = {};
+						resultJSON[id].name = response.statuses[key].user['name'];
+						resultJSON[id].handle = response.statuses[key].user['screen_name'];
+						resultJSON[id].text	= response.statuses[key].text;
+						resultJSON[id].profile_image = response.statuses[key].user['profile_image_url'];
+						resultJSON[id].background_image = response.statuses[key].user['profile_banner_url'] + '/web';
+						resultJSON[id].followers = response.statuses[key].user['friends_count'];
+						if(count==5) {
+							console.log(resultJSON);
+							return 1;
+						}
 					}
-				}	
+				}
 			}
 		});
-		query++;
+	query++;
 	}
 } 
 
