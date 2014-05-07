@@ -6,6 +6,8 @@
 var AlchemyAPI = require("./alchemyapi");
 var alchemyapi = new AlchemyAPI();
 
+var express = require('express');
+var async=require('async');
 var $ = require('jquery');
 var express = require('express');
 var consolidate = require('consolidate');
@@ -16,6 +18,21 @@ var T = new Twit({
   , access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED'
   , access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'
 });
+
+var app= express()
+var path = require('path');
+
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+ if ('OPTIONS' == req.method) {
+      res.send(200);
+    }
+    else {
+      next();
+    }
+}
 
 /*
 #################################
@@ -128,7 +145,51 @@ function getURL() {
 		return getQuery(url);
 	});
 }
-getURL();
+
+
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+ if ('OPTIONS' == req.method) {
+      res.send(200);
+    }
+    else {
+      next();
+    }
+}
+
+
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'jade');
+app.use(express.favicon());
+app.use(express.logger('dev'));
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(app.router);
+app.use(express.static(path.join(__dirname, 'public')));
+
+// development only
+if ('development' == app.get('env')) {
+  app.use(express.errorHandler());
+}
+
+
+
+app.post('/tweetResult',function(req,res)
+{
+    res.contentType('application/json');
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+	url="http://www.latimes.com/business/technology/la-fi-tn-tmobile-customers-first-quarter-20140501,0,6307378.story#axzz30h8x8YZI"
+	console.log("hi");
+	
+	//console.log(resultJSON)
+    res.send(getQuery(url))
+});
+
 
 /*
 ###############################
@@ -136,7 +197,7 @@ getURL();
 ###############################
 */
 function getQuery(url) {
-	console.log('\n')
+	console.log('\ngetquery')
 	alchemyapi.text('url', url, null, function(response) {
 		//get the text from the article
 		text = response['text'];
@@ -254,9 +315,8 @@ function getQuery(url) {
 					var uQ = updateQuery(query, people, positions);
 					var cQ = compileQueries(uQ);
 					//var intResult=getTweets(cQ);
-					var gT = getTweets(cQ);
-					printQuery();
-					
+					return getTweets(cQ);
+					//var t  = printQuery();
 					// if(typeof tempJSON!='undefined') {
 					// 	console.log(tempJSON);
 					// }
@@ -274,6 +334,7 @@ function receiveQuery(text, people, positions) {
 }
 
 function updateQuery(text, people, positions) {
+	console.log("inside update query")
 	for(var i in people) {
 		var index = text.indexOf(people[i]);
 		text.splice(index, 1);
@@ -286,6 +347,7 @@ function updateQuery(text, people, positions) {
 }
 
 function compileQueries(array) {
+	console.log("inside compileQueries")
 	var text = array[0];
 	var people = array[1];
 	var positions = array[2];
@@ -315,6 +377,7 @@ function compileQueries(array) {
 function getTweets(queries) {
 	var len = queries.length - 1;
 	var query = 0;
+	console.log(queries);
 	while (count<5 && query<20) {
 		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
 			if (!response) {
@@ -322,7 +385,8 @@ function getTweets(queries) {
 			}
 			else if(response.statuses.length>0) {
 				for (var key in response.statuses) {
-					if(count<5 && response.statuses[key].retweeted==false && response.statuses[key].user['verified']==true && response.statuses[key].text.indexOf('.com')<0 && response.statuses[key].user['friends_count']>1000) {
+					//&& response.statuses[key].user['verified']==true && response.statuses[key].text.indexOf('.com')<0 && response.statuses[key].user['friends_count']>1000
+					if(count<5 && response.statuses[key].retweeted==false ) {
 						count++;
 						console.log(count-1);
 						var id = response.statuses[key].id;
@@ -334,26 +398,31 @@ function getTweets(queries) {
 						resultJSON[id].background_image = response.statuses[key].user['profile_banner_url'] + '/web';
 						resultJSON[id].followers = response.statuses[key].user['friends_count'];
 						if(count==5) {
-							//console.log(resultJSON);
+							console.log(resultJSON)
+							return resultJSON
 							break;
 						}
 					}
 					if(count==5) {
+						console.log(resultJSON)
+						return resultJSON
 						break;
 					}
-				}
+				 }
+				 //return resultJSON;
 			}
 		});
 	query++;
 	}
+						
 } 
 
 function printQuery() {
+	console.log("Inside print")
  	console.log(resultJSON);
  	return;
 }
-
-
-
+console.log("Server Listening at port 3000")
+app.listen(3000);
 
 
