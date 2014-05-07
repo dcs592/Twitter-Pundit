@@ -1,0 +1,30 @@
+<html>
+<head>
+	<link rel="stylesheet" style="text/class" href="url.css">
+	<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+	<head>
+	<div class="background">
+		<img id="url_logo" src="tweettalk_logo.jpg"></img>
+		<br>
+		<br>
+		<br>
+		<br>
+		<span class="enter">ENTER ARTICLE URL</span>
+		<br>
+		<input class="search"></input>
+		<br>
+		<img id="click" type="button" src="search_button.png" onClick="skipmain()"></img>
+	</div>
+	 <script type="text/javascript" src="http://www.w3school.com.cn/jquery/jquery.js"></script> 
+	  <script type="text/javascript" language="javascript">
+	$("#click").mouseover(function(){
+		$(this).css("border","2px solid green");
+	});
+	$("#click").mouseout(function(){
+		$(this).css("border","none");
+	});
+	function skipmain(){
+		window.location='twitter.html'
+	}
+	</script>
+</html>
