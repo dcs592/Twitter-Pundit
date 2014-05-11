@@ -107,7 +107,7 @@ getURL();
 
 //title();
 
-function keywords(url) {
+function keywords(url, $) {
 	var results;
 	var resultJSON = {};
 	alchemyapi.keywords('url', url, null, function(response) {
@@ -117,12 +117,22 @@ function keywords(url) {
 		for(var i=0; i<arrayLength; i++) {
 			//console.log('\t\t' + results[i].text);
 		}
-	if(results.length)
+		if(results.length)
 		{
 
-  	 			var query=results[0].text+'  '+ results[1].text ;
-  	 			var id;
-		T.get('search/tweets', { q: query, count:200  }, function(err, reply1) {
+  	 		var query=results[0].text+'  '+ results[1].text ;
+  	 		var id;
+  	 		$.getJSON("http://search.twitter.com/search.json?q=" + query + ";rpp=5&amp;callback=?", function(data) {
+		//T.get('search/tweets', { q: query, count:200  }, function(err, reply1) {
+			//$(data.results).each(function(i, v) {
+				console.log(data);
+			//})
+			});
+  	 	}
+  	});
+}
+/*
+
 
   				//console.log(err)
   				if(reply1.statuses.length>0)
@@ -180,10 +190,8 @@ function keywords(url) {
   				
   			}
   		}
-		});*/
-		
-});
-}
+		});*/	
+
 
 function getMoreTweets(query,id,ctr)
 {
@@ -227,7 +235,7 @@ function title(url) {
 		art_title = temp
 	//	console.log('\n\tArticle Keywords: [' + art_title + ']\n');
 	})
-	keywords(url);
+	keywords(url, $);
 }
 
 

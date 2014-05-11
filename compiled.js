@@ -139,7 +139,7 @@ function getURL() {
 	process.stdin.setEncoding('utf8');
 	var util = require('util');
 	var test;
-	
+
 	process.stdin.on('data', function(data) {
 		var url = data.toString();
 		return getQuery(url);
@@ -185,7 +185,7 @@ app.post('/tweetResult',function(req,res)
     res.header('Access-Control-Allow-Headers', 'Content-Type');
 	url="http://www.latimes.com/business/technology/la-fi-tn-tmobile-customers-first-quarter-20140501,0,6307378.story#axzz30h8x8YZI"
 	console.log("hi");
-	
+
 	//console.log(resultJSON)
     res.send(getQuery(url))
 });
@@ -320,7 +320,7 @@ function getQuery(url) {
 					// if(typeof tempJSON!='undefined') {
 					// 	console.log(tempJSON);
 					// }
-				
+
 				});
 			})
 		});
@@ -414,7 +414,7 @@ function getTweets(queries) {
 		});
 	query++;
 	}
-						
+
 } 
 
 function printQuery() {
@@ -424,5 +424,3 @@ function printQuery() {
 }
 console.log("Server Listening at port 3000")
 app.listen(3000);
-
-
