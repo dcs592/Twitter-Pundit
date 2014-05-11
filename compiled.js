@@ -11,7 +11,8 @@ var async=require('async');
 var $ = require('jquery');
 var express = require('express');
 var consolidate = require('consolidate');
-var Twit = require('twit')
+var Twit = require('twit');
+var request = require('request');
 var T = new Twit({
     consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o'
   , consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1'
@@ -145,6 +146,8 @@ function getURL() {
 		return getQuery(url);
 	});
 }
+
+getURL();
 
 
 var allowCrossDomain = function(req, res, next) {
@@ -308,6 +311,7 @@ function getQuery(url) {
 						}
 						// if the entity is not already listed
 						else if (query.indexOf(response['entities'][entity]['text'])==-1) {
+							if (query)
 							// add it to the entity list
 							query.push(response['entities'][entity]['text']);
 						}
@@ -375,10 +379,58 @@ function compileQueries(array) {
 }
 
 function getTweets(queries) {
-	var len = queries.length - 1;
-	var query = 0;
 	console.log(queries);
-	while (count<5 && query<20) {
+	for(var query in queries) {
+		request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + queries[query],
+					oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+  	 							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+  	 							access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+  	 							access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+  	 				json: true},
+  	 		function(error, response, tweets) {
+  	 			if(error) {
+  	 				console.log("Query error")
+  	 			}
+  	 			for (var key in tweets.statuses) {
+//  	 				console.log("key");
+  	 				var desc = tweets.statuses[key].user['description'];
+  	 				desc = desc.toLowerCase();
+  	 				var news = false;
+  	 				if(desc.indexOf("news")>=0) {
+  	 					news = true;
+  	 				}
+  	 				if(desc.indexOf("public relations")>=0) {
+  	 					news = true;
+  	 				}
+
+  	 				if (count<5 && news==false) {// && tweets.statuses[key].retweeted==false && tweets.statuses[key].user['verified']) {
+  	 					count++;
+  	 					console.log(count-1);
+  	 					var id = tweets.statuses[key].id;
+  	 					resultJSON[id] = {};
+  	 					resultJSON[id].name = tweets.statuses[key].user['name'];
+  	 					resultJSON[id].handle = tweets.statuses[key].user['screen_name'];
+						resultJSON[id].text	= tweets.statuses[key].text;
+						resultJSON[id].profile_image = tweets.statuses[key].user['profile_image_url'];
+						resultJSON[id].background_image = tweets.statuses[key].user['profile_banner_url'] + '/web';
+						console.log(resultJSON[id]);
+						if(count==5) {
+							return resultJSON;
+							break;
+						}
+  	 				}
+  	 				if(count==5) {
+  	 					return resultJSON;
+  	 					break;
+  	 				}
+  	 			}
+  	 	});
+	}
+}
+/*
+					})
+
+
 		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
 			if (!response) {
 				console.log(err);
@@ -416,11 +468,11 @@ function getTweets(queries) {
 	}
 
 } 
-
+*/
 function printQuery() {
 	console.log("Inside print")
  	console.log(resultJSON);
  	return;
 }
-console.log("Server Listening at port 3000")
+//console.log("Server Listening at port 3000")
 app.listen(3000);

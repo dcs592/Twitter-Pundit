@@ -6,7 +6,8 @@ var alchemyapi = new AlchemyAPI();
 var $ = require('jquery');
 var express = require('express');
 var consolidate = require('consolidate');
-var Twit = require('twit')
+var Twit = require('twit');
+var request = require('request');
 var T = new Twit({
     consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o'
   , consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1'
@@ -107,7 +108,7 @@ getURL();
 
 //title();
 
-function keywords(url, $) {
+function keywords(url) {
 	var results;
 	var resultJSON = {};
 	alchemyapi.keywords('url', url, null, function(response) {
@@ -122,12 +123,29 @@ function keywords(url, $) {
 
   	 		var query=results[0].text+'  '+ results[1].text ;
   	 		var id;
-  	 		$.getJSON("http://search.twitter.com/search.json?q=" + query + ";rpp=5&amp;callback=?", function(data) {
+  	 		//https://api.twitter.com/1.1/search/tweets.json?q=ukraine+obama&since_id=24012619984051000&max_id=250126199840518145&result_type=mixed&count=4
+  	 	//	$.getJSON("https://api.twitter.com/1.1/search/tweets.json?=" + query + "&count=5", function(data) {
+	
+
+  	 		request.get({url: "https://api.twitter.com/1.1/search/tweets.json?q=obama&result_type=popular&rpp=100&lang=en",
+  	 			oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+  	 						consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+  	 						access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+  	 						access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+  	 					json: true},
+  	 			function(error, response, data) {
+  	 				for(var item in data.statuses) {
+  	 					console.log(data.statuses[item].user['name'] + ": " + data.statuses[item].text + '\n');
+  	 				}
+  	 			});
+
+
+
 		//T.get('search/tweets', { q: query, count:200  }, function(err, reply1) {
 			//$(data.results).each(function(i, v) {
-				console.log(data);
+				//console.log(data);
 			//})
-			});
+		//	});
   	 	}
   	});
 }
@@ -235,7 +253,7 @@ function title(url) {
 		art_title = temp
 	//	console.log('\n\tArticle Keywords: [' + art_title + ']\n');
 	})
-	keywords(url, $);
+	keywords(url);
 }
 
 
