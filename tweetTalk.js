@@ -124,8 +124,7 @@ var author = "";
 var query = []; // most relevant entities
 var positions = []; // sublist of job positions
 var people = []; // sublist of people
-var resultJSON = {}; // stores json of relevant tweets
-var top5 = [];
+var resultJSON = []; // stores json of relevant tweets
 var count = 0;
 
 /*
@@ -389,14 +388,16 @@ function getTweets(queries,res) {
 					if(count<5 && response.statuses[key].retweeted==false ) {
 						count++;
 						console.log(count-1);
-						var id = response.statuses[key].id;
-						resultJSON[id] = {};
-						resultJSON[id].name = response.statuses[key].user['name'];
-						resultJSON[id].handle = response.statuses[key].user['screen_name'];
-						resultJSON[id].text	= response.statuses[key].text;
-						resultJSON[id].profile_image = response.statuses[key].user['profile_image_url'];
-						resultJSON[id].background_image = response.statuses[key].user['profile_banner_url'] + '/web';
-						resultJSON[id].followers = response.statuses[key].user['friends_count'];
+						//var id = response.statuses[key].id;
+						var newJSON = {};
+						newJSON['name'] = response.statuses[key].user['name'];
+						newJSON['handle'] = response.statuses[key].user['screen_name'];
+						newJSON['text'] = response.statuses[key].text;
+						newJSON['profile_image'] = response.statuses[key].user['profile_image_url'];
+						newJSON['background_image'] = response.statuses[key].user['profile_banner_url'] + '/web';
+
+						resultJSON.push(newJSON);
+
 						if(count==5) {
 							console.log(resultJSON)
 							res.send(resultJSON)
