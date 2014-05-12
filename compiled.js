@@ -393,7 +393,7 @@ function getTweets(queries) {
   	 			}
   	 			for (var key in tweets.statuses) {
 //  	 				console.log("key");
-  	 				var desc = tweets.statuses[key].user['description'];
+/*  	 				var desc = tweets.statuses[key].user['description'];
   	 				desc = desc.toLowerCase();
   	 				var news = false;
   	 				if(desc.indexOf("news")>=0) {
@@ -403,26 +403,42 @@ function getTweets(queries) {
   	 					news = true;
   	 				}
 
-  	 				if (count<5 && news==false) {// && tweets.statuses[key].retweeted==false && tweets.statuses[key].user['verified']) {
-  	 					count++;
-  	 					console.log(count-1);
-  	 					var id = tweets.statuses[key].id;
-  	 					resultJSON[id] = {};
-  	 					resultJSON[id].name = tweets.statuses[key].user['name'];
-  	 					resultJSON[id].handle = tweets.statuses[key].user['screen_name'];
-						resultJSON[id].text	= tweets.statuses[key].text;
-						resultJSON[id].profile_image = tweets.statuses[key].user['profile_image_url'];
-						resultJSON[id].background_image = tweets.statuses[key].user['profile_banner_url'] + '/web';
-						console.log(resultJSON[id]);
-						if(count==5) {
-							return resultJSON;
-							break;
-						}
-  	 				}
-  	 				if(count==5) {
-  	 					return resultJSON;
-  	 					break;
-  	 				}
+
+  	 		*/		var name = tweets.statuses[key].user['name'];
+  	 				alchemyapi.entities('text', name, null, function(response) {
+  	 					for(var entity in response['entities']) {
+  	 						console.log(response['entities'][entity]['text']);
+							if(response['entities'][entity]['type']=='Person') {
+								var inArray = false;
+			  	 				for(var item in resultJSON) {
+			  	 					if (resultJSON[item].text==tweets.statuses[key].text) {
+			  	 						inArray = true;
+			  	 					}
+			  	 				}
+
+			  	 				if (count<5 && inArray==false) {// && tweets.statuses[key].retweeted==false && tweets.statuses[key].user['verified']) {
+			  	 					count++;
+			  	 					console.log(count-1);
+			  	 					var id = tweets.statuses[key].id;
+			  	 					resultJSON[id] = {};
+			  	 					resultJSON[id].name = tweets.statuses[key].user['name'];
+			  	 					resultJSON[id].handle = tweets.statuses[key].user['screen_name'];
+									resultJSON[id].text	= tweets.statuses[key].text;
+									resultJSON[id].profile_image = tweets.statuses[key].user['profile_image_url'];
+									resultJSON[id].background_image = tweets.statuses[key].user['profile_banner_url'] + '/web';
+									console.log(resultJSON[id]);
+									if(count==5) {
+										return resultJSON;
+										break;
+									}
+			  	 				}
+			  	 				if(count==5) {
+			  	 					return resultJSON;
+			  	 					break;
+			  	 				}
+			  	 			}
+			  	 		}
+			  	 	});
   	 			}
   	 	});
 	}
