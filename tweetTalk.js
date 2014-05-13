@@ -399,14 +399,18 @@ function getTweets(queries,res) {
 						resultJSON.push(newJSON);
 
 						if(count==5) {
-							console.log(resultJSON)
+							//console.log(resultJSON)
 							res.send(resultJSON)
+							console.log("success");
+							return resultJSON;
 							break;
 						}
 					}
 					if(count==5) {
-						console.log(resultJSON)
+						//console.log(resultJSON)
 						res.send(resultJSON)
+						console.log("success");
+						return resultJSON;
 						break;
 					}
 				 }
