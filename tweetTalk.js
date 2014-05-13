@@ -377,7 +377,7 @@ function getTweets(queries,res) {
 	var len = queries.length - 1;
 	var query = 0;
 	console.log(queries);
-	while (count<5 && query<20) {
+	while (count<5 && query<10) {
 		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
 			if (!response) {
 				console.log(err);
@@ -402,6 +402,8 @@ function getTweets(queries,res) {
 							//console.log(resultJSON)
 							res.send(resultJSON)
 							console.log("success");
+							resultJSON = [];
+							count = 0;
 							return resultJSON;
 							break;
 						}
@@ -410,6 +412,8 @@ function getTweets(queries,res) {
 						//console.log(resultJSON)
 						res.send(resultJSON)
 						console.log("success");
+						resultJSON = [];
+						count = 0;
 						return resultJSON;
 						break;
 					}
