@@ -6,6 +6,7 @@
 var AlchemyAPI = require("./alchemyapi");
 var alchemyapi = new AlchemyAPI();
 
+var request = require('request');
 var express = require('express');
 var async=require('async');
 var $ = require('jquery');
@@ -182,7 +183,7 @@ app.post('/tweetResult',function(req,res)
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
-	url="http://www.latimes.com/world/europe/la-fg-ukraine-separatist-referendum-20140511-story.html#page=1"
+	url="http://www.latimes.com/local/la-sp-clippers-sterling-20140513-story.html#page=1"
 	console.log("hi");
 	
 	//console.log(resultJSON)
@@ -377,6 +378,81 @@ function getTweets(queries,res) {
 	var len = queries.length - 1;
 	var query = 0;
 	console.log(queries);
+
+	for(var query in queries) {
+		request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + queries[query],
+					oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+  	 							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+  	 							access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+  	 							access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+  	 				json: true},
+  	 		function(error, response, tweets) {
+  	 			if(error) {
+  	 				console.log("Query error")
+  	 			}
+  	 			for (var key in tweets.statuses) {
+					var name = tweets.statuses[key].user['name'];
+  	 				alchemyapi.entities('text', name, null, function(response) {
+  	 					if(response['entities'].length>0) {
+  	 						console.log("Entities: " + String(response['entities']));
+  	 					}
+  	 					for(var entity in response['entities']) {
+  	 						console.log(response['entities'][entity]['text']);
+							if(response['entities'][entity]['type']=='Person') {
+
+								var inArray = false;
+			  	 				for(var item in resultJSON) {
+			  	 					if (resultJSON[item]['text']==tweets.statuses[key].text) {
+			  	 						inArray = true;
+			  	 					}
+			  	 				}
+
+			  	 				var org_name = false;
+			  	 				if (tweets.statuses[key].user['name'].indexOf('.com')>=0) {
+			  	 					org_name = true;
+			  	 				}
+
+			  	 				if (count<5 && inArray==false && org_name==false) {
+			  	 					count++;
+			  	 					console.log(count-1);
+			  	 					var id = tweets.statuses[key].id;
+			  	 					var newJSON = {};
+			  	 					newJSON['name'] = tweets.statuses[key].user['name'];
+			  	 					newJSON['handle'] = tweets.statuses[key].user['screen_name'];
+									newJSON['text']	= tweets.statuses[key].text;
+									newJSON['profile_image'] = tweets.statuses[key].user['profile_image_url'];
+									newJSON['background_image'] = tweets.statuses[key].user['profile_banner_url'] + '/web';
+									resultJSON.push(newJSON);
+									console.log(resultJSON);
+									if(count==5) {
+										res.send(resultJSON)
+										console.log("success");
+										resultJSON = [];
+										count = 0;
+										return resultJSON;
+										break;
+									}
+			  	 				}
+			  	 				if(count==5) {
+			  	 					res.send(resultJSON)
+									console.log("success");
+									resultJSON = [];
+									count = 0;
+									return resultJSON;
+									break;
+			  	 				}
+			  	 			}
+			  	 		}
+			  	 	});
+  	 			}
+  	 		});
+	}
+}
+
+
+/*
+
+
 	while (count<5 && query<10) {
 		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
 			if (!response) {
@@ -425,7 +501,7 @@ function getTweets(queries,res) {
 	}
 						
 } 
-
+*/
 function printQuery() {
 	console.log("Inside print")
  	console.log(resultJSON);

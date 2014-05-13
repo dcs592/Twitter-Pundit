@@ -392,19 +392,7 @@ function getTweets(queries) {
   	 				console.log("Query error")
   	 			}
   	 			for (var key in tweets.statuses) {
-//  	 				console.log("key");
-/*  	 				var desc = tweets.statuses[key].user['description'];
-  	 				desc = desc.toLowerCase();
-  	 				var news = false;
-  	 				if(desc.indexOf("news")>=0) {
-  	 					news = true;
-  	 				}
-  	 				if(desc.indexOf("public relations")>=0) {
-  	 					news = true;
-  	 				}
-
-
-  	 		*/		var name = tweets.statuses[key].user['name'];
+					var name = tweets.statuses[key].user['name'];
   	 				alchemyapi.entities('text', name, null, function(response) {
   	 					for(var entity in response['entities']) {
   	 						console.log(response['entities'][entity]['text']);
@@ -416,7 +404,12 @@ function getTweets(queries) {
 			  	 					}
 			  	 				}
 
-			  	 				if (count<5 && inArray==false) {// && tweets.statuses[key].retweeted==false && tweets.statuses[key].user['verified']) {
+			  	 				var org_name = false;
+			  	 				if (tweets.statuses[key].user['name'].indexOf('.com')>=0) {
+			  	 					org_name = true;
+			  	 				}
+
+			  	 				if (count<5 && inArray==false && org_name==false) {
 			  	 					count++;
 			  	 					console.log(count-1);
 			  	 					var id = tweets.statuses[key].id;

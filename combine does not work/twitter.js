@@ -9,11 +9,30 @@ function startAjax(){
           }).done(function(data2){
       //"data" will be JSON. Do what you want with it. 
           	data = data2;
-          	hello1();
+          	console.log(data);
           });
       }
+
+function hellocopy(data) {
+	document.getElementById("button1").src="tw_min.png";
+	document.getElementById("button2").src="tw_plus.png";
+	document.getElementById("button3").src="tw_plus.png";
+	document.getElementById("button4").src="tw_plus.png";
+	document.getElementById("button5").src="tw_plus.png";
+
+	document.getElementById("middle").innerHTML=data[0].text;
+	document.getElementById("username").innerHTML=data[0].name;
+	document.getElementById("handle").innerHTML="@"+data[0].handle;
+	document.getElementById("header0").src=data[0].profile_image;
+	document.getElementById("base").src=data[0].background_image;
+
+	for(var t=0;t<5;t++){
+		document.getElementById("ex"+String(t)).innerHTML=data[t].name;
+	}
+}
     
 function hello1(){
+	console.log(data);
 	document.getElementById("button1").src="tw_min.png";
 	document.getElementById("button2").src="tw_plus.png";
 	document.getElementById("button3").src="tw_plus.png";
