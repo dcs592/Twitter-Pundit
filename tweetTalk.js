@@ -403,51 +403,56 @@ function getTweets(queries,res) {
   	 			for (var key in tweets.statuses) {
 					var name = tweets.statuses[key].user['name'];
   	 				alchemyapi.entities('text', name, null, function(response) {
-  	 					if(response['entities'].length>0) {
-  	 						console.log("Entities: " + String(response['entities']));
-  	 					}
-  	 					for(var entity in response['entities']) {
-  	 						console.log(response['entities'][entity]['text']);
-							if(response['entities'][entity]['type']=='Person') {
+  	 					if (response['entities']) {
+	  	 					if(response['entities'].length>0) {
+	  	 						console.log("Entities: " + String(response['entities']));
+	  	 					}
+	  	 					for(var entity in response['entities']) {
+	  	 						console.log(response['entities'][entity]['text']);
+								if(response['entities'][entity]['type']=='Person') {
 
-								var inArray = false;
-			  	 				for(var item in resultJSON) {
-			  	 					if (resultJSON[item]['text']==tweets.statuses[key].text) {
-			  	 						inArray = true;
-			  	 					}
-			  	 				}
+									var inArray = false;
+				  	 				for(var item in resultJSON) {
+				  	 					if (resultJSON[item]['text']==tweets.statuses[key].text) {
+				  	 						inArray = true;
+				  	 					}
+				  	 				}
 
-			  	 				var org_name = false;
-			  	 				if (tweets.statuses[key].user['name'].indexOf('.com')>=0) {
-			  	 					org_name = true;
-			  	 				}
+				  	 				var org_name = false;
+				  	 				if (tweets.statuses[key].user['name'].indexOf('.com')>=0) {
+				  	 					org_name = true;
+				  	 				}
 
-			  	 				if (count<5 && inArray==false && org_name==false) {
-			  	 					count++;
-			  	 					console.log(count-1);
-			  	 					var id = tweets.statuses[key].id;
-			  	 					var newJSON = {};
-			  	 					newJSON['name'] = tweets.statuses[key].user['name'];
-			  	 					newJSON['handle'] = tweets.statuses[key].user['screen_name'];
-									newJSON['text']	= tweets.statuses[key].text;
-									newJSON['profile_image'] = tweets.statuses[key].user['profile_image_url'];
-									newJSON['background_image'] = tweets.statuses[key].user['profile_banner_url'] + '/web';
-									resultJSON.push(newJSON);
-									console.log(resultJSON);
-									if(count==5) {
-										
-										res.send(resultJSON)
+				  	 				if (count<5 && inArray==false && org_name==false) {
+				  	 					count++;
+				  	 					console.log(count-1);
+				  	 					var id = tweets.statuses[key].id;
+				  	 					var newJSON = {};
+				  	 					newJSON['name'] = tweets.statuses[key].user['name'];
+				  	 					newJSON['handle'] = tweets.statuses[key].user['screen_name'];
+										newJSON['text']	= tweets.statuses[key].text;
+										newJSON['profile_image'] = tweets.statuses[key].user['profile_image_url'];
+										newJSON['background_image'] = tweets.statuses[key].user['profile_banner_url'] + '/web';
+										resultJSON.push(newJSON);
+										console.log(resultJSON);
+										if(count==5) {
+											
+											res.send(resultJSON)
+											return resultJSON;
+											break;
+										}
+				  	 				}
+				  	 				if(count==5) {
+				  	 					res.send(resultJSON)
 										return resultJSON;
 										break;
-									}
-			  	 				}
-			  	 				if(count==5) {
-			  	 					res.send(resultJSON)
-									return resultJSON;
-									break;
-			  	 				}
-			  	 			}
-			  	 		}
+				  	 				}
+				  	 			}
+				  	 		}
+				  	 	}
+				  	 	else {
+				  	 		console.log(response);
+				  	 	}
 			  	 	});
   	 			}
   	 		});
