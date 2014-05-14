@@ -6,6 +6,7 @@
 
  "permissions": ["tabs", "http://*/*", "background"],
  "background": "background.html",
- "content_scripts": [{"matches": ["http://*/*"],"js": ["twitter.js"],"css":["twitter.css"]}],
- "browser_action": {"default_icon": "16x16.png","default_popup": "popup.html"}
+ "content_scripts": [{"matches": ["http://*/*"],"js": ["twitter.js","jquery.js"],"css":["twitter.css"]}],
+ "browser_action": {"default_icon": "thin-035_tweet_message_twitter-128.png","default_popup": "popup.html"}
+ 
 }

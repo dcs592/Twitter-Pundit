@@ -9,6 +9,7 @@ function startAjax(){
           }).done(function(data2){
       //"data" will be JSON. Do what you want with it. 
           	data = data2;
+          	console.log(data)
           	hello1();
           });
       }

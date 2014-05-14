@@ -183,8 +183,17 @@ app.post('/tweetResult',function(req,res)
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
-	url="http://www.latimes.com/local/la-sp-clippers-sterling-20140513-story.html#page=1"
+    url=req.body.url;
+	console.log(url);
 	console.log("hi");
+	 text = "";
+	 author = "";
+	 query = []; // most relevant entities
+	 positions = []; // sublist of job positions
+	 people = []; // sublist of people
+	 resultJSON = []; // stores json of relevant tweets
+	 count = 0;										
+			  	 					
 	
 	//console.log(resultJSON)
     getQuery(url,res)
@@ -203,6 +212,7 @@ function getQuery(url,res) {
 		text = response['text'];
 		alchemyapi.title('url', url, null, function(response) {
 			//get the article title
+			console.log(response)
 			var art_title = response['title'];
 			//combine the title and text
 			text = art_title + ' ' + text;
@@ -425,19 +435,14 @@ function getTweets(queries,res) {
 									resultJSON.push(newJSON);
 									console.log(resultJSON);
 									if(count==5) {
+										
 										res.send(resultJSON)
-										console.log("success");
-										resultJSON = [];
-										count = 0;
 										return resultJSON;
 										break;
 									}
 			  	 				}
 			  	 				if(count==5) {
 			  	 					res.send(resultJSON)
-									console.log("success");
-									resultJSON = [];
-									count = 0;
 									return resultJSON;
 									break;
 			  	 				}
