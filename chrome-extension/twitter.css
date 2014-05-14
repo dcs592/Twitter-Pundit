@@ -1,7 +1,7 @@
 .left{
 float:left;
 border:3px #ff0 solid;
-height:900px;
+height:auto;
 width:250px;
 background-color:#E0E0E0;
 border-right-color: rgb(44,151,162);
@@ -13,7 +13,7 @@ border-left-color: black;
 .middle{
 float:left;
 border:3px #ff0 solid;
-height:900px;
+height:auto;
 width:400px;
 background-color:#F2F2F2;
 border-right-color: rgb(44,151,162);
@@ -96,27 +96,38 @@ img.base{
     /*z-index: 0;*/
     background-color: black;
 }
-#username{
-font-family: Georgia,serif;
-font-size: 23px;
-position: absolute;
+
+#user_handle{
+width: 260px;
+height:50px;
 z-index: 1;
-color: white;
-margin-left: 120px;
-margin-top: -60px;
+margin-top: -70px;
+margin-left: 70px;
 }
 
 #handle{
-margin-left: 150px;
-margin-top: -30px;
-position: absolute;
+margin-left: 20px;
+margin-top: -15px;
+/*position: absolute;*/
 color: white;
+z-index: 2;
+text-align:center;
+}
+#username{
+font-family: Georgia,serif;
+font-size: 23px;
+/*position: absolute;*/
+text-align:center;
+z-index: 2;
+color: white;
+margin-left: 20px;
+margin-top: -60px;
 }
 img#header0{
 	width:50px;
 	height:50px;
 	margin-top: -120px;
-	margin-left: 240px;
+	margin-left: 180px;
 	z-index: 1;
 	position:absolute;
 }

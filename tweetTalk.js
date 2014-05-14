@@ -434,8 +434,22 @@ function getTweets(queries,res,url) {
   	 				if (tweets.statuses[key].user['name'].indexOf('.com')>=0) {
   	 					org_name = true;
   	 				}
-  	 				var org_name = false;
   	 				if (tweets.statuses[key].user['name'].indexOf('News')>=0) {
+  	 					org_name = true;
+  	 				}
+  	 				if (tweets.statuses[key].user['name'].indexOf('news')>=0) {
+  	 					org_name = true;
+  	 				}
+  	 				if (tweets.statuses[key].user['name'].indexOf('PR')>=0) {
+  	 					org_name = true;
+  	 				}
+  	 				if (tweets.statuses[key].user['name'].indexOf('TV')>=0) {
+  	 					org_name = true;
+  	 				}
+  	 				if (tweets.statuses[key].user['name'].indexOf('Radio')>=0) {
+  	 					org_name = true;
+  	 				}
+  	 				if (tweets.statuses[key].user['name'].indexOf('Show')>=0) {
   	 					org_name = true;
   	 				}
   	 				var linked = false;
