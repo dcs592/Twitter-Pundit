@@ -141,7 +141,7 @@ margin-left:80px;
 }
 div#middle{
 width: 96%;
-height:100px;
+height:auto;
 background-color: #CECECE;
 /*margin-left: 40px;*/
 font-family: "Oswald";
