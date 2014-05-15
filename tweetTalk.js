@@ -430,26 +430,23 @@ function getTweets(queries,res,url) {
   	 					}
   	 				}
 
+  	 				var name = tweets.statuses[key].user['name'];
+  	 				name = name.toLowerCase();
+
   	 				var org_name = false;
   	 				if (tweets.statuses[key].user['name'].indexOf('.com')>=0) {
   	 					org_name = true;
   	 				}
-  	 				if (tweets.statuses[key].user['name'].indexOf('News')>=0) {
+  	 				if (name.indexOf('news')>=0) {
   	 					org_name = true;
   	 				}
-  	 				if (tweets.statuses[key].user['name'].indexOf('news')>=0) {
+  	 				if (name.indexOf(' tv')>=0) {
   	 					org_name = true;
   	 				}
-  	 				if (tweets.statuses[key].user['name'].indexOf('PR')>=0) {
+  	 				if (name.indexOf('radio')>=0) {
   	 					org_name = true;
   	 				}
-  	 				if (tweets.statuses[key].user['name'].indexOf('TV')>=0) {
-  	 					org_name = true;
-  	 				}
-  	 				if (tweets.statuses[key].user['name'].indexOf('Radio')>=0) {
-  	 					org_name = true;
-  	 				}
-  	 				if (tweets.statuses[key].user['name'].indexOf('Show')>=0) {
+  	 				if (name.indexOf('show')>=0) {
   	 					org_name = true;
   	 				}
   	 				var linked = false;
@@ -458,8 +455,12 @@ function getTweets(queries,res,url) {
   	 					linked = true;
   	 				}
 
+  	 				var followers = false;
+  	 				if(tweets.statuses[key].user['followers_count']>10000) {
+  	 					followers = true;
+  	 				}
 
-  	 				if (count<5 && inArray==false && org_name==false && linked==false) {
+  	 				if (inArray==false && org_name==false && linked==false && followers==true) {
 
   	 					addTweet(url, tweets.statuses[key].id);
 
@@ -476,15 +477,11 @@ function getTweets(queries,res,url) {
 						console.log(newJSON['name'] + ": " + newJSON['text']);
 						if(count==5) {
 							res.send(resultJSON)
-							return resultJSON;
-							break;
 						}
   	 				}
   	 				
   	 				if(count==5) {
   	 					res.send(resultJSON)
-						return resultJSON;
-						break;
   	 				}
   	 			}
   	 	});
