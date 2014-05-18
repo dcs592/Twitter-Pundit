@@ -20,6 +20,8 @@ function startup()
            cache: false,
           }).done(function(data2){
       //"data" will be JSON. Do what you want with it. 
+      		document.getElementById("overlay").style.display = 'none';
+      		document.getElementById("loading").style.display = 'none';
           	data = data2;
           	hello1();
           });

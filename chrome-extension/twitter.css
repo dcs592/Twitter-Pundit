@@ -1,4 +1,4 @@
-.left{
+.left_col{
 float:left;
 border:3px #ff0 solid;
 height:auto;
@@ -10,7 +10,7 @@ border-bottom-color: black;
 border-left-color: black;
 }
 
-.middle{
+.middle_col{
 float:left;
 border:3px #ff0 solid;
 height:auto;
@@ -23,7 +23,7 @@ border-bottom-color: black;
 border-right-width: 3px;
 }
 
-.right{
+.right_col{
 float:left;
 border:3px #ff0 solid;
 height:900px;
@@ -200,3 +200,34 @@ margin-left:80px;
 	width: 40px;
 	height:40px;
 }
+
+#overlay {
+	width: 660px;
+	height: 585px;
+	display: block;
+	position: absolute;
+	background: black;
+	opacity: 0.5;
+	z-index: 100;
+}
+
+#loading {
+	position: absolute;
+	width: 100px;
+	height: auto;
+	border-radius: 10px;
+	border: 2px solid ;
+	margin-top: 250px;
+	margin-left: 280px;
+	margin-right: auto;
+	background: #E0E0E0;
+	border-color: rgb(44,151,162);
+	font-weight: bold;
+	font-size: large;
+	padding: 10px;
+	text-align: center;
+	z-index: 101;
+}
+
+
+

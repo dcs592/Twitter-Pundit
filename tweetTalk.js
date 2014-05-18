@@ -124,11 +124,9 @@ var searchlist = ['believe', 'opinion', 'think'];
 var text = "";
 var raw_text = "";
 var author = "";
-var query = []; // most relevant entities
 var positions = []; // sublist of job positions
 var people = []; // sublist of people
 var resultJSON = []; // stores json of relevant tweets
-var count = 0;
 var entities = {};
 var store_url = "";
 var store_title = "";
@@ -202,6 +200,10 @@ app.post('/tweetResult',function(req,res)
 ###############################
 */
 function getQuery(url,res) {
+	query = [];
+	positions = []; // sublist of job positions
+	people = []; 
+	entities = {};
 	alchemyapi.text('url', url, null, function(response) {
 		//get the text from the article
 		text = response['text'];
@@ -213,6 +215,7 @@ function getQuery(url,res) {
 			text = art_title + ' ' + text;
 
 			alchemyapi.author('url', url, null, function(response) {
+				console.log(response);
 				//get the article author
 				author = response['author'];
 				//remove the author from the article
@@ -362,6 +365,7 @@ function compileQueries(array) {
 }
 
 function getTweets(queries,res,url) {
+	resultJSON = [];
 	console.log("inside get tweets");
 	console.log(queries);
 	var len = queries.length - 1;
@@ -409,6 +413,9 @@ function getTweets(queries,res,url) {
   	 				if (name.indexOf('show')>=0) {
   	 					org_name = true;
   	 				}
+  	 				if (name.indexOf('nba')>=0) {
+  	 					org_name = true;
+  	 				}
   	 				var linked = false;
   	 				var text = tweets.statuses[key].text;
   	 				if (text.indexOf("http")>=0) {
@@ -416,13 +423,11 @@ function getTweets(queries,res,url) {
   	 				}
 
   	 				var followers = false;
-  	 				if(tweets.statuses[key].user['followers_count']>10000) {
+  	 				if(tweets.statuses[key].user['followers_count']>5000) {
   	 					followers = true;
   	 				}
 
   	 				if (inArray==false && org_name==false && linked==false && followers==true) {
-  	 					count++;
-  	 					console.log(count-1);
   	 					var id = tweets.statuses[key].id;
   	 					var newJSON = {};
   	 					newJSON['name'] = tweets.statuses[key].user['name'];
@@ -433,17 +438,6 @@ function getTweets(queries,res,url) {
 						resultJSON.push(newJSON);
 						if(query==len && key==(tweets.statuses.length-1)) {
 							compareTweets(resultJSON, res);
-							text = "";
-							raw_text = "";
-							author = "";
-							query = []; // most relevant entities
-							positions = []; // sublist of job positions
-							people = []; // sublist of people
-							resultJSON = []; // stores json of relevant tweets
-							count = 0;
-							entities = {};
-							store_url = "";
-							store_title = "";
 							break;
 							return false;
 						}
@@ -451,17 +445,6 @@ function getTweets(queries,res,url) {
   	 				
   	 				if(query==len && key==(tweets.statuses.length-1)) {
   	 					compareTweets(resultJSON, res);
-	 					text = "";
-						raw_text = "";
-						author = "";
-						query = []; // most relevant entities
-						positions = []; // sublist of job positions
-						people = []; // sublist of people
-						resultJSON = []; // stores json of relevant tweets
-						count = 0;
-						entities = {};
-						store_url = "";
-						store_title = "";
   	 					break;
   	 					return false;
   	 				}
@@ -478,14 +461,16 @@ function compareTweets(tweets, res) {
 		var content = tweets[i]['text'];
 		content = content.toLowerCase();
 		for (var p in punct_list) {
-			content = content.replace(punct_list[p], '');
+			while(content.indexOf(punct_list[p])>=0) {
+				content = content.replace(punct_list[p], '');
+			}
 		}
 		content = content.replace('\n', ' ');
 		content = content.replace('\t', ' ');
 		content = content.split(' ');
-		for (var len = 1; len < content.length-1; len++) {
+		for (var len = 1; len < 4; len++) {
 			for (var index = 0; index < (content.length - len + 1); index++) {
-				if (stoplist.indexOf(content[index])<0 && stoplist.indexOf(content[index+len-1])<0) {
+				if ((stoplist.indexOf(content[index])<0 && stoplist.indexOf(content[index+len-1])<0) || (len==2 && stoplist.indexOf(content[index])>=0)) {
 					var string = content.slice(index, index+len);
 					string = string.join(' ');
 					var pos = raw_text.indexOf(string);
@@ -554,17 +539,6 @@ function addURLtoFirebase(url, author, title, tweets) {
 		'title': title,
 		'tweets': tweets
 	});
-	text = "";
-	raw_text = "";
-	author = "";
-	query = []; // most relevant entities
-	positions = []; // sublist of job positions
-	people = []; // sublist of people
-	resultJSON = []; // stores json of relevant tweets
-	count = 0;
-	entities = {};
-	store_url = "";
-	store_title = "";
 	return false;
 //	}
 }
@@ -585,11 +559,9 @@ function checkIfURLinFirebase(url, res) {
 		}
 		var firebaseAPI = "https://tweettalk.firebaseio.com/urls/" + url + "/tweets.json";
 		request.get(firebaseAPI, function(error, response, result) {
-			console.log(result);
 			if(!error && response.statusCode == 200) {
 				if(result!='null') {
 					res.send(result);
-					//console.log(result['tweets']);
 					console.log("found");
 					return false;
 				}
