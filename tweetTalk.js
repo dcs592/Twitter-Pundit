@@ -5,6 +5,7 @@
 */
 var AlchemyAPI = require("./alchemyapi");
 var alchemyapi = new AlchemyAPI();
+var Firebase = require('firebase');
 
 var request = require('request');
 var express = require('express');
@@ -108,7 +109,7 @@ var stoplist = ['a', "a's", 'able', 'about', 'above', 'according', 'accordingly'
 'whom', 'whose', 'why', 'will', 'willing', 'wish', 'with', 'within', 'without', 
 "won't", 'wonder', 'would', 'would', "wouldn't", 'x', 'y', 'yes', 'yet', 'you', 
 "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves', 
-'z', 'zero', '-']
+'z', 'zero', '']
 
 var punct_list = ['.', ',', ':', ';', "\'", "\"", '\\', '/', '?', '<', '>', '-', '_', '+', 
 '=', '~', '!', '#', '$', '%', '&', '^', '*', '[', ']', '{', '}', '(', ')', '`']
@@ -121,12 +122,16 @@ var searchlist = ['believe', 'opinion', 'think'];
 ########################################
 */
 var text = "";
+var raw_text = "";
 var author = "";
 var query = []; // most relevant entities
 var positions = []; // sublist of job positions
 var people = []; // sublist of people
 var resultJSON = []; // stores json of relevant tweets
 var count = 0;
+var entities = {};
+var store_url = "";
+var store_title = "";
 
 /*
 ##########################
@@ -183,19 +188,11 @@ app.post('/tweetResult',function(req,res)
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
-    url=req.body.url;
-	console.log(url);
-	 text = "";
-	 author = "";
-	 query = []; // most relevant entities
-	 positions = []; // sublist of job positions
-	 people = []; // sublist of people
-	 resultJSON = []; // stores json of relevant tweets
-	 count = 0;										
-			  	 					
-	
+    url=req.body.url;													
+	store_url = url;
 	//console.log(resultJSON)
-    getQuery(url,res)
+	console.log(url);
+	checkIfURLinFirebase(url, res);
 });
 
 
@@ -210,15 +207,14 @@ function getQuery(url,res) {
 		text = response['text'];
 		alchemyapi.title('url', url, null, function(response) {
 			//get the article title
-			console.log(response)
 			var art_title = response['title'];
+			store_title = art_title;
 			//combine the title and text
 			text = art_title + ' ' + text;
 
 			alchemyapi.author('url', url, null, function(response) {
 				//get the article author
 				author = response['author'];
-				addURLtoFirebase(url, author, art_title);
 				//remove the author from the article
 				text = text.replace("By " + author, '');
 				text = text.replace(author, '');
@@ -258,17 +254,11 @@ function getQuery(url,res) {
 					}
 					index = text.indexOf('');
 				} while (index > -1);
-				// remove stoplist words
-				var templist = [];
-				for(var word in text) {
-					if (stoplist.indexOf(text[word])>= 0) {
-						continue;
-					}
-					else {	
-						templist.push(text[word]);
-					}
-				}
-				text = templist;
+
+				raw_text = text;
+				raw_text = raw_text.join(' ');
+				raw_text = raw_text.toLowerCase();
+
 				text = text.join(" ");
 				// make text lowercase
 				text = text.toLowerCase();
@@ -279,6 +269,7 @@ function getQuery(url,res) {
 				##########################
 				*/				
 				alchemyapi.entities('text', text, null, function(response) {
+					entities = response;
 					var max = 5; // max number of entities listed
 					var people_count = 0; // number of people in entities list
 					for(var entity in response['entities']) {
@@ -325,21 +316,10 @@ function getQuery(url,res) {
 					var cQ = compileQueries(uQ);
 					//var intResult=getTweets(cQ);
 					getTweets(cQ,res,url);
-					//var t  = printQuery();
-					// if(typeof tempJSON!='undefined') {
-					// 	console.log(tempJSON);
-					// }
-				
 				});
 			})
 		});
 	});
-}
-
-function receiveQuery(text, people, positions) {
-	console.log(text);
-	console.log(people);
-	console.log(positions);
 }
 
 function updateQuery(text, people, positions) {
@@ -362,25 +342,6 @@ function compileQueries(array) {
 	var positions = array[2];
 	var queries = []
 	var string = ""
-/*	for (var i in text) {
-		for (var s in searchlist) {
-			for (var i2 in text) {
-				if (i!=i2) {
-					string = text[i] + ' ' + text[i2] + ' ' + searchlist[s];
-					queries.push(string);
-				}
-			}
-			for (var i3 in people) {
-				string = text[i] + ' ' + people[i3] + ' ' + searchlist[s];
-				queries.push(string);
-			}
-			for (var i4 in positions) {
-				string = text[i] + ' ' + positions[i4] + ' ' + searchlist[s];
-				queries.push(string);
-			}
-		}
-	}
-*/
 	for (var i in text) {
 		for (var i2 in text) {
 			if (i!=i2) {
@@ -401,16 +362,15 @@ function compileQueries(array) {
 }
 
 function getTweets(queries,res,url) {
+	console.log("inside get tweets");
+	console.log(queries);
 	var len = queries.length - 1;
 	var query = 0;
-	console.log(queries);
-	
 	for(var p in punct_list) {
 		while(url.indexOf(punct_list[p])>=0) {
 			url = url.replace(punct_list[p], '');
 		}
 	}
-
 	for(var query in queries) {
 		request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + queries[query],
 					oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
@@ -419,7 +379,7 @@ function getTweets(queries,res,url) {
   	 							access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
   	 				json: true},
   	 		function(error, response, tweets) {
-  	 			if(error) {
+  	 			if(error || tweets.statuses.length==0) {
   	 				console.log("Query error")
   	 			}
   	 			for (var key in tweets.statuses) {
@@ -461,9 +421,6 @@ function getTweets(queries,res,url) {
   	 				}
 
   	 				if (inArray==false && org_name==false && linked==false && followers==true) {
-
-  	 					addTweet(url, tweets.statuses[key].id);
-
   	 					count++;
   	 					console.log(count-1);
   	 					var id = tweets.statuses[key].id;
@@ -471,95 +428,120 @@ function getTweets(queries,res,url) {
   	 					newJSON['name'] = tweets.statuses[key].user['name'];
   	 					newJSON['handle'] = tweets.statuses[key].user['screen_name'];
 						newJSON['text']	= tweets.statuses[key].text;
-						newJSON['profile_image'] = tweets.statuses[key].user['profile_image_url'];
-						newJSON['background_image'] = tweets.statuses[key].user['profile_banner_url'] + '/web';
+						newJSON['pimage'] = tweets.statuses[key].user['profile_image_url'];
+						newJSON['bimage'] = tweets.statuses[key].user['profile_banner_url'] + '/web';
 						resultJSON.push(newJSON);
-						console.log(newJSON['name'] + ": " + newJSON['text']);
-						if(count==5) {
-							res.send(resultJSON)
+						if(query==len && key==(tweets.statuses.length-1)) {
+							compareTweets(resultJSON, res);
+							text = "";
+							raw_text = "";
+							author = "";
+							query = []; // most relevant entities
+							positions = []; // sublist of job positions
+							people = []; // sublist of people
+							resultJSON = []; // stores json of relevant tweets
+							count = 0;
+							entities = {};
+							store_url = "";
+							store_title = "";
+							break;
+							return false;
 						}
   	 				}
   	 				
-  	 				if(count==5) {
-  	 					res.send(resultJSON)
+  	 				if(query==len && key==(tweets.statuses.length-1)) {
+  	 					compareTweets(resultJSON, res);
+	 					text = "";
+						raw_text = "";
+						author = "";
+						query = []; // most relevant entities
+						positions = []; // sublist of job positions
+						people = []; // sublist of people
+						resultJSON = []; // stores json of relevant tweets
+						count = 0;
+						entities = {};
+						store_url = "";
+						store_title = "";
+  	 					break;
+  	 					return false;
   	 				}
   	 			}
   	 	});
 	}
 }
 
-
-/*
-
-
-	while (count<5 && query<10) {
-		T.get('search/tweets', {q: queries[query], count: 100}, function(err, response) {
-			if (!response) {
-				console.log(err);
-			}
-			else if(response.statuses.length>0) {
-				for (var key in response.statuses) {
-					//&& response.statuses[key].user['verified']==true && response.statuses[key].text.indexOf('.com')<0 && response.statuses[key].user['friends_count']>1000
-					if(count<5 && response.statuses[key].retweeted==false ) {
-						count++;
-						console.log(count-1);
-						//var id = response.statuses[key].id;
-						var newJSON = {};
-						newJSON['name'] = response.statuses[key].user['name'];
-						newJSON['handle'] = response.statuses[key].user['screen_name'];
-						newJSON['text'] = response.statuses[key].text;
-						newJSON['profile_image'] = response.statuses[key].user['profile_image_url'];
-						newJSON['background_image'] = response.statuses[key].user['profile_banner_url'] + '/web';
-
-						resultJSON.push(newJSON);
-
-						if(count==5) {
-							//console.log(resultJSON)
-							res.send(resultJSON)
-							console.log("success");
-							resultJSON = [];
-							count = 0;
-							return resultJSON;
-							break;
+function compareTweets(tweets, res) {
+	console.log("inside compare tweets");
+	var art_len = raw_text.length;
+	for (var i=0; i < tweets.length; i++) {
+		var tally = 0;
+		var content = tweets[i]['text'];
+		content = content.toLowerCase();
+		for (var p in punct_list) {
+			content = content.replace(punct_list[p], '');
+		}
+		content = content.replace('\n', ' ');
+		content = content.replace('\t', ' ');
+		content = content.split(' ');
+		for (var len = 1; len < content.length-1; len++) {
+			for (var index = 0; index < (content.length - len + 1); index++) {
+				if (stoplist.indexOf(content[index])<0 && stoplist.indexOf(content[index+len-1])<0) {
+					var string = content.slice(index, index+len);
+					string = string.join(' ');
+					var pos = raw_text.indexOf(string);
+					if (pos>=0) {
+						for (var item in entities) {
+							if(string.indexOf(entities[item]['text'])>=0) {
+								var relevance = parseFloat(entities[item]['relevance']);
+								var word_count = parseFloat(entities[item]['count']);
+								var multiple = relevance*word_count;
+								break;
+							}
+							else {
+								var multiple = 1;
+							}
 						}
+						tally+= (art_len - pos)*multiple;
 					}
-					if(count==5) {
-						//console.log(resultJSON)
-						res.send(resultJSON)
-						console.log("success");
-						resultJSON = [];
-						count = 0;
-						return resultJSON;
-						break;
-					}
-				 }
-				 //return resultJSON;
+				}
 			}
-		});
-	query++;
+		}
+		tweets[i]['count'] = tally;
+		if (i==(tweets.length-1)) {
+			tweets.sort(function(a,b) { return parseFloat(b.count) - parseFloat(a.count) } );
+			var limit = 0;
+			if (tweets.length>5) {
+				limit = 5;
+			}
+			else { limit = tweets.length;}
+			var json = {};
+			for (var i=0; i<limit; i++) {
+				json[String(i)] = {};
+				json[String(i)]['name'] = resultJSON[i]['name'];
+				json[String(i)]['handle'] = resultJSON[i]['handle'];
+				json[String(i)]['text'] = resultJSON[i]['text'];
+				json[String(i)]['pimage'] = resultJSON[i]['pimage'];
+				json[String(i)]['bimage'] = resultJSON[i]['bimage'];
+			}
+			res.send(tweets.slice(0, limit));
+			addURLtoFirebase(store_url, author, store_title, json);
+			return false;
+		}
 	}
-						
-} 
-*/
-function printQuery() {
- 	console.log(resultJSON);
- 	return;
+	return false;
 }
+
 console.log("Server Listening at port 3000")
 app.listen(3000);
-
-
-
 
 /*
 #################################
 ==== Add queries to database ====
 #################################
 */
-var Firebase = require('firebase');
 var myDataRef = new Firebase('https://tweettalk.firebaseio.com/');
 	
-function addURLtoFirebase(url, author, title) {
+function addURLtoFirebase(url, author, title, tweets) {
 	for(var p in punct_list) {
 		while(url.indexOf(punct_list[p])>=0) {
 			url = url.replace(punct_list[p], '');
@@ -570,8 +552,20 @@ function addURLtoFirebase(url, author, title) {
 	myDataRef.child('urls').child(url).set({
 		'author': author,
 		'title': title,
+		'tweets': tweets
 	});
-	return true
+	text = "";
+	raw_text = "";
+	author = "";
+	query = []; // most relevant entities
+	positions = []; // sublist of job positions
+	people = []; // sublist of people
+	resultJSON = []; // stores json of relevant tweets
+	count = 0;
+	entities = {};
+	store_url = "";
+	store_title = "";
+	return false;
 //	}
 }
 
@@ -579,23 +573,41 @@ function addTweet(url, tweet) {
 	myDataRef.child('urls').child(url).child('tweets').child(tweet).set(tweet);
 }
 
-/*
-function checkIfURLinFirebase(url) {
+
+function checkIfURLinFirebase(url, res) {
+	console.log("searching database")
 	if(url) {
-		var firebaseAPI = "https://tweettalk.firebaseio.com/urls/" + url + ".json";
-		var result;
-		$.ajax ({
-			dataType: "json",
-			url: firebaseAPI,
-			async: false,
-			success: function(data) {
-				result = data
+		var tempurl = url;
+		for(var p in punct_list) {
+			while(url.indexOf(punct_list[p])>=0) {
+				url = url.replace(punct_list[p], '');
+			}
+		}
+		var firebaseAPI = "https://tweettalk.firebaseio.com/urls/" + url + "/tweets.json";
+		request.get(firebaseAPI, function(error, response, result) {
+			console.log(result);
+			if(!error && response.statusCode == 200) {
+				if(result!='null') {
+					res.send(result);
+					//console.log(result['tweets']);
+					console.log("found");
+					return false;
+				}
+				else {
+					console.log("not found");
+					getQuery(tempurl,res);
+					return false;;
+				}
+			}
+			else {
+				console.log("not found");
+				getQuery(tempurl,res);
+				return false;
 			}
 		});
-		if(result['urls'])
 	}
 }
-*/
+
 
 
 

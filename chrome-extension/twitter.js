@@ -21,7 +21,6 @@ function startup()
           }).done(function(data2){
       //"data" will be JSON. Do what you want with it. 
           	data = data2;
-          	console.log(data)
           	hello1();
           });
       }
@@ -37,8 +36,8 @@ function hello1(){
 	document.getElementById("middle").innerHTML=data[0].text;
 	document.getElementById("username").innerHTML=data[0].name;
 	document.getElementById("handle").innerHTML="@"+data[0].handle;
-	document.getElementById("header0").src=data[0].profile_image;
-	document.getElementById("base").src=data[0].background_image;
+	document.getElementById("header0").src=data[0].pimage;
+	document.getElementById("base").src=data[0].bimage;
 
 	for(var t=0;t<5;t++){
 		document.getElementById("ex"+String(t)).innerHTML=data[t].name;
@@ -55,8 +54,8 @@ function hello2(){
 	document.getElementById("middle").innerHTML=data[1].text;
 	document.getElementById("username").innerHTML=data[1].name;
 	document.getElementById("handle").innerHTML="@"+data[1].handle;
-	document.getElementById("header0").src=data[1].profile_image;
-	document.getElementById("base").src=data[1].background_image;
+	document.getElementById("header0").src=data[1].pimage;
+	document.getElementById("base").src=data[1].bimage;
 
 	for(var t=0;t<5;t++){
 		document.getElementById("ex"+String(t)).innerHTML=data[t].name;
@@ -74,8 +73,8 @@ function hello3(){
 	document.getElementById("middle").innerHTML=data[2].text;
 	document.getElementById("username").innerHTML=data[2].name;
 	document.getElementById("handle").innerHTML="@"+data[2].handle;
-	document.getElementById("header0").src=data[2].profile_image;
-	document.getElementById("base").src=data[2].background_image;
+	document.getElementById("header0").src=data[2].pimage;
+	document.getElementById("base").src=data[2].bimage;
 
 	for(var t=0;t<5;t++){
 		document.getElementById("ex"+String(t)).innerHTML=data[t].name;
@@ -92,8 +91,8 @@ function hello4(){
 	document.getElementById("middle").innerHTML=data[3].text;
 	document.getElementById("username").innerHTML=data[3].name;
 	document.getElementById("handle").innerHTML="@"+data[3].handle;
-	document.getElementById("header0").src=data[3].profile_image;
-	document.getElementById("base").src=data[3].background_image;
+	document.getElementById("header0").src=data[3].pimage;
+	document.getElementById("base").src=data[3].bimage;
 
 	for(var t=0;t<5;t++){
 		document.getElementById("ex"+String(t)).innerHTML=data[t].name;
@@ -110,8 +109,8 @@ function hello5(){
 	document.getElementById("middle").innerHTML=data[4].text;
 	document.getElementById("username").innerHTML=data[4].name;
 	document.getElementById("handle").innerHTML="@"+data[4].handle;
-	document.getElementById("header0").src=data[4].profile_image;
-	document.getElementById("base").src=data[4].background_image;
+	document.getElementById("header0").src=data[4].pimage;
+	document.getElementById("base").src=data[4].bimage;
 
 	for(var t=0;t<5;t++){
 		document.getElementById("ex"+String(t)).innerHTML=data[t].name;
