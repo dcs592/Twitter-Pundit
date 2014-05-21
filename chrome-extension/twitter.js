@@ -7,25 +7,26 @@ chrome.tabs.getSelected(null,function(tab) {
 		    startup();
 			});
 
-function startup()
-		{
+function startup() {
 			
-			console.log(tablink);
-			urlJSON={url:tablink}
+	console.log(tablink);
+	urlJSON={url:tablink};
 
-	       $.ajax({
-           url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
-           type:'POST',
-           data:urlJSON,
-           cache: false,
-          }).done(function(data2){
+	$.ajax({
+       url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
+       type:'POST',
+       data:urlJSON,
+       cache: false,
+    }).done(function(data2){
       //"data" will be JSON. Do what you want with it. 
-      		document.getElementById("overlay").style.display = 'none';
-      		document.getElementById("loading").style.display = 'none';
-          	data = data2;
-          	hello1();
-          });
-      }
+      	document.getElementById("overlay").style.display = 'none';
+      	document.getElementById("loading").style.display = 'none';
+        data = data2;
+        hello1();
+    });
+}
+
+
     
 function hello1(){
 	console.log(data);
