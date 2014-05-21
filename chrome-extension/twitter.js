@@ -34,8 +34,12 @@ urlJSON={url:tablink}
          	{
          	var content='<div class="expertblock">';
         	content += '<img class="header0" src="'+ data[i].profile_image+'" title="'+data[i].description+'"></img>';
-        	content += '<h1 id="username">'+data[i].name+'</h1>';
-        	content += '<p id="handle">'+data[i].handle+'</p>';
+           content += '<table class="table">';
+          content += '<tr>';
+          content += '<td id="username">'+data[i].name+'</td>';
+          content += '</tr>'+'<tr>';
+          content += '<td id="handle">'+'@'+data[i].handle+'</td>';
+          content += '</td>' + '</table>';
         	//content += '<p id="t_des">'+data[i].description+'</p>';
         	content += '<div class="tweetblock"></div>';
         	content += '<p id="tweets">'+data[i].text+'</p>';
