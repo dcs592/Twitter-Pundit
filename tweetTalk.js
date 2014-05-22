@@ -263,10 +263,27 @@ function getQuery(url,res) {
 
 				/*
 				##########################
-				==== Extract Entities ====
+				==== Extract Keywords ====
 				##########################
-				*/				
-				alchemyapi.entities('text', text, null, function(response) {
+				*/	
+
+				alchemyapi.keywords('text', raw_text, null, function(response) {
+					keywords = response;
+					entities = response;
+					console.log(response);
+					for (k in keywords['keywords']) {
+						if (k<8) {//(parseFloat(keywords['keywords'][k]['relevance'])>=.5) {
+							console.log(keywords['keywords'][k]['text']);
+							query.push(keywords['keywords'][k]['text']);
+						}
+					}
+					tweetList = [];
+					for (var item in query) {
+						getTweets(query[item], res, item, query.length-1);
+					}
+				});
+
+/*				alchemyapi.entities('text', text, null, function(response) {
 					entities = response;
 					var max = 5; // max number of entities listed
 					var people_count = 0; // number of people in entities list
@@ -294,7 +311,7 @@ function getQuery(url,res) {
 								max+= 1;
 								people_count = 0;
 							}*/
-						}
+	/*					}
 						// if the entity is a job title
 						else if(response['entities'][entity]['type']=="JobTitle") {
 							// add it to the sublist of job positions
@@ -309,17 +326,21 @@ function getQuery(url,res) {
 							// add it to the entity list
 							query.push(response['entities'][entity]['text']);
 						}
-					}
 
+						alchemyapi.keywords('text', text, null, function(response) {
+							console.log(response);
+						});
+					}
+*/
 					//topic = checkTopic(text);
 //					var uQ = updateQuery(query, people, positions);
-					var cQ = compileQueries(query);
-					tweetList = [];
-					for (var item in cQ) {
-						getTweets(cQ[item], res, item, cQ.length-1);
-					}
-				});
-			})
+				//	var cQ = compileQueries(query);
+				// tweetList = [];
+				// for (var item in query) {
+				// 	getTweets(query[item], res, item, query.length-1);
+				// }
+				//});
+			});
 		});
 	});
 }
@@ -402,18 +423,19 @@ function getTweets(q, res, k, total) {
 	  	 				if (name.indexOf('.com')>=0) {
 	  	 					org_name = true;
 	  	 				}
-	  	 				if (name.indexOf('news')>=0) {
+	  	 				else if (name.indexOf('news')>=0) {
 	  	 					org_name = true;
 	  	 				}
-	  	 				if (name.indexOf(' tv')>=0) {
+	  	 				else if (name.indexOf('times')>=0) {
 	  	 					org_name = true;
 	  	 				}
-	  	 				if (name.indexOf('radio')>=0) {
+	  	 				else if (name.indexOf('guardian')>=0) {
 	  	 					org_name = true;
 	  	 				}
-	  	 				if (name.indexOf('show')>=0) {
+	  	 				else if (name.indexOf('bbc')>=0) {
 	  	 					org_name = true;
 	  	 				}
+
 	  	 				var tw_text = tweets.statuses[key].text;
 
 	  	 				var followers = true;
@@ -444,7 +466,7 @@ function getTweets(q, res, k, total) {
 	  	 					corresp = 2;
 	  	 				}
 
-	  	 				if (inArray==false && msnbc==false && pitch==false) {// && org_name==false && followers==false && pitch==false) {
+	  	 				if (inArray==false && org_name==false && msnbc==false && pitch==false) {// && org_name==false && followers==false && pitch==false) {
 	  	 					console.log("added");
 	  	 					tweets.statuses[key]['corresp'] = corresp;
 	  	 					tweetList.push(tweets.statuses[key]);
@@ -464,8 +486,6 @@ function parseTweets(tweets, res) {
 	resultJSON = [];
 	console.log("Number of tweets: " + tweets.length);
 	for (var t in tweets) {
-			count++;
-			console.log(count-1);
 
 			var newJSON = {};
 			newJSON['name'] = tweets[t].user['name'];
@@ -508,9 +528,9 @@ function compareTweets(tweets, res) {
 					string = string.join(' ');
 					var pos = raw_text.indexOf(string);
 					if (pos>=0) {
-						for (var item in entities) {
-							if(string.indexOf(entities[item]['text'])>=0) {
-								var relevance = parseFloat(entities[item]['relevance']);
+						for (var item in entities['keywords']) {
+							if(string.indexOf(entities['keywords'][item]['text'])>=0) {
+								var relevance = parseFloat(entities['keywords'][item]['relevance']);
 								tally+= (art_len - pos)*relevance;
 								break;
 							}
@@ -561,11 +581,17 @@ function addURLtoFirebase(url, author, title, tweets) {
 			url = url.replace(punct_list[p], '');
 		}
 	}
+	var today = new Date();
+	var dd = today.getDate();
+	var mm = today.getMonth();
+	var yy = today.getFullYear();
+	var date = {'day': dd, 'month': mm, 'year': yy};
 	console.log("addingurl");
 	myDataRef.child('urls').child(url).set({
 		'author': author,
 		'title': title,
-		'tweets': tweets
+		'tweets': tweets,
+		'updated': date
 	});
 	return false;
 }

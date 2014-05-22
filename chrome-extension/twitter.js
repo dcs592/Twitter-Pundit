@@ -33,7 +33,7 @@ urlJSON={url:tablink}
 	     	for(i=0;i<data.length;i++)
          	{
          	var content='<div class="expertblock">';
-        	content += '<img class="header0" src="'+ data[i].profile_image+'" title="'+data[i].description+'"></img>';
+        	content += '<img class="header0" src="'+ data[i].pimage+'" title="'+data[i].description+'"></img>';
            content += '<table class="table">';
           content += '<tr>';
           content += '<td id="username">'+data[i].name+'</td>';
