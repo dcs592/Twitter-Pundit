@@ -270,10 +270,10 @@ function getQuery(url,res) {
 				alchemyapi.keywords('text', raw_text, null, function(response) {
 					keywords = response;
 					entities = response;
-					console.log(response);
+				//	console.log(response);
 					for (k in keywords['keywords']) {
 						if (k<8) {//(parseFloat(keywords['keywords'][k]['relevance'])>=.5) {
-							console.log(keywords['keywords'][k]['text']);
+						//	console.log(keywords['keywords'][k]['text']);
 							query.push(keywords['keywords'][k]['text']);
 						}
 					}
@@ -420,19 +420,26 @@ function getTweets(q, res, k, total) {
 	  	 				name = name.toLowerCase();
 
 	  	 				var org_name = false;
-	  	 				if (name.indexOf('.com')>=0) {
-	  	 					org_name = true;
-	  	 				}
-	  	 				else if (name.indexOf('news')>=0) {
-	  	 					org_name = true;
-	  	 				}
-	  	 				else if (name.indexOf('times')>=0) {
-	  	 					org_name = true;
-	  	 				}
-	  	 				else if (name.indexOf('guardian')>=0) {
-	  	 					org_name = true;
-	  	 				}
-	  	 				else if (name.indexOf('bbc')>=0) {
+	  	 				if (name.indexOf('.com')>=0 || name.indexOf('news')>=0 || 
+	  	 					name.indexOf('times')>=0 || name.indexOf('guardian')>=0 ||
+	  	 					name.indexOf('bbc')>=0 || name.indexOf('euromaidan')>=0 ||
+	  	 					name.indexOf('washington')>=0 || name.indexOf('standard')>=0 ||
+	  	 					name.indexOf('associated press')>=0 || name.indexOf('yahoo')>=0 ||
+	  	 					name.indexOf('bbc')>=0 || name.indexOf('online')>=0 ||
+	  	 					name.indexOf('daily')>=0 || name.indexOf('rt')==0 || 
+	  	 					name.indexOf('live')>=0 || name.indexOf('street')>=0 ||
+	  	 					name.indexOf('leicester')>=0 || name.indexOf('picture')>=0 ||
+	  	 					name.indexOf('history')>=0 || name.indexOf('white house')>=0 ||
+	  	 					name.indexOf('fact')>=0 || name.indexOf('histor')>=0 ||
+	  	 					name.indexOf('espn')>=0 || name.indexOf('sports')>=0 ||
+	  	 					name.indexOf('quartz')>=0 || name.indexOf('america')>=0 ||
+	  	 					name.indexOf('msn')>=0 || name.indexOf('mashable')>=0 ||
+	  	 					name.indexOf('nato')>=0 || name.indexOf('independent')>=0 ||
+	  	 					name.indexOf('market')>=0 || name.indexOf('forbes')>=0 ||
+	  	 					name.indexOf('magazine')>=0 || name.indexOf('vanity')>=0 ||
+	  	 					name.indexOf('forbes')>=0 || name.indexOf('cnn')>=0 ||
+	  	 					name.indexOf('something')>=0 || name.indexOf('bad luck')>=0 ||
+	  	 					name.indexOf(' tv')>=0 || name.indexOf('radio')>=0) {
 	  	 					org_name = true;
 	  	 				}
 
@@ -452,11 +459,6 @@ function getTweets(q, res, k, total) {
 	  	 					pitch = true;
 	  	 				}
 
-	  	 				var msnbc = false;
-	  	 				if (name.indexOf('msnbc')>=0) {
-	  	 					msnbc = true;
-	  	 				}
-
 	  	 				var corresp = 1;
 	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("correspondent")) {
 	  	 					pitch = false;
@@ -466,13 +468,13 @@ function getTweets(q, res, k, total) {
 	  	 					corresp = 2;
 	  	 				}
 
-	  	 				if (inArray==false && org_name==false && msnbc==false && pitch==false) {// && org_name==false && followers==false && pitch==false) {
+	  	 				if (inArray==false && org_name==false && pitch==false) {// && org_name==false && followers==false && pitch==false) {
 	  	 					console.log("added");
 	  	 					tweets.statuses[key]['corresp'] = corresp;
 	  	 					tweetList.push(tweets.statuses[key]);
 	  	 				}
 	  	 				if(key==(tweets.statuses.length-1)) {
-	  	 					if(k==total-1 || k==total || tweetList.length>=15) {
+	  	 					if(k==total-1 || k==total || tweetList.length>=5) {
 	  	 						return parseTweets(tweetList, res);
 	  	 					}
 	  	 				}
@@ -542,13 +544,9 @@ function compareTweets(tweets, res) {
 		tweets[i]['count'] = tally*corresp;
 		if (i==(tweets.length-1)) {
 			tweets.sort(function(a,b) { return parseFloat(b.count) - parseFloat(a.count) } );
-			var limit = 0;
-			if (tweets.length>5) {
-				limit = 5;
-			}
-			else { limit = tweets.length;}
+
 			var json = {};
-			for (var i=0; i<limit; i++) {
+			for (var i=0; i<resultJSON.length; i++) {
 				json[String(i)] = {};
 				json[String(i)]['name'] = resultJSON[i]['name'];
 				json[String(i)]['handle'] = resultJSON[i]['handle'];
@@ -557,8 +555,7 @@ function compareTweets(tweets, res) {
 				json[String(i)]['bimage'] = resultJSON[i]['bimage'];
 				json[String(i)]['description'] = resultJSON[i]['description'];
 			}
-			res.send(tweets.slice(0, limit));
-			addURLtoFirebase(store_url, author, store_title, json);
+			addURLtoFirebase(store_url, author, store_title, json, res);
 			return false;
 		}
 	}
@@ -575,7 +572,7 @@ app.listen(3000);
 */
 var myDataRef = new Firebase('https://tweettalk.firebaseio.com/');
 
-function addURLtoFirebase(url, author, title, tweets) {
+function addURLtoFirebase(url, author, title, tweets, res) {
 	for(var p in punct_list) {
 		while(url.indexOf(punct_list[p])>=0) {
 			url = url.replace(punct_list[p], '');
@@ -593,6 +590,8 @@ function addURLtoFirebase(url, author, title, tweets) {
 		'tweets': tweets,
 		'updated': date
 	});
+	checkIfURLinFirebase(url, res);
+//	res.send(tweets);
 	return false;
 }
 
@@ -605,10 +604,11 @@ function checkIfURLinFirebase(url, res) {
 				url = url.replace(punct_list[p], '');
 			}
 		}
-		console.log(url);
+	
 		var firebaseAPI = "https://tweettalk.firebaseio.com/urls/" + url + "/tweets.json";
+
 		request.get(firebaseAPI, function(error, response, result) {
-			console.log(result);
+		//	console.log(result);
 			if(!error && response.statusCode == 200) {
 				if(result!='null') {
 					res.send(result);
