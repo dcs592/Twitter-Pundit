@@ -32,17 +32,17 @@ urlJSON={url:tablink}
 
 	     	for(i=0;i<data.length;i++)
          	{
-         	var content='<div class="expertblock">';
+         	var content='<a target="_blank" href="https://twitter.com/' + data[i].handle + '"><div class="expertblock">';
         	content += '<img class="header0" src="'+ data[i].pimage+'" title="'+data[i].description+'"></img>';
            content += '<table class="table">';
           content += '<tr>';
           content += '<td id="username">'+data[i].name+'</td>';
           content += '</tr>'+'<tr>';
           content += '<td id="handle">'+'@'+data[i].handle+'</td>';
-          content += '</td>' + '</table>';
+          content += '</td></table></a>';
         	//content += '<p id="t_des">'+data[i].description+'</p>';
-        	content += '<div class="tweetblock"></div>';
-        	content += '<p id="tweets">'+data[i].text+'</p>';
+        	content += '<div class="tweetblock">';
+        	content += '<p id="tweets">'+data[i].text+'</p></div>';
         	content += '</div><br><br><div id="middle"></div><br>';
         	$(content).appendTo("#profile");
         	}
