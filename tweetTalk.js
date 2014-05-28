@@ -397,7 +397,7 @@ function expertTweet(query,res, expert)
 console.log(query);
 console.log(expert);
 var expertTweetList=[];
-
+ctr=0;
 for ( item=0; item<query.length;item++) {
 request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&from=" + expert+"&q="+query[item],
 		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
@@ -412,23 +412,24 @@ request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=po
   	 			else {
   	 				for(i=0;i<tweets.statuses.length;i++)
   	 				{
-  	 					 console.log(tweets.statuses[i].text);
-  	 					 expertTweetList.push(tweets.statuses[i].text)
+  	 					console.log(tweets.statuses[i].user['name']);
+  	 					 expertTweetList.push({name: tweets.statuses[i].user['name'], description: tweets.statuses[i].user['description'], handle: tweets.statuses[i].user['screen_name'], pimage: tweets.statuses[i].user['profile_image_url'], tweet:tweets.statuses[i].text})
+  	 					 res.send(expertTweetList)
+  	 					 ctr++;
   	 				}
+
 	  	 		
   	 			}
 	 });
 
  
+}
 
- if(item==query.length-1)
+if(ctr>0)
  {
  	console.log(expertTweetList)
  	res.send(expertTweetList)
  }
-
-
-}
 
 }
 
