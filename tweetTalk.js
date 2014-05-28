@@ -116,6 +116,14 @@ var punct_list = ['.', ',', ':', ';', "\'", "\"", '\\', '/', '?', '<', '>', '-',
 
 var searchlist = ['believe', 'opinion', 'think'];
 
+var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaidan', 'standard',
+				'washington', 'press', 'yahoo', 'online', 'daily', 'rt', 'not ', 'live', 'street',
+				'leicester', 'picture', 'histor', 'white house', 'fact', 'espn', 'mashable', 'sport',
+				'quartz', 'america', 'msn', 'nato', 'independent', 'market', 'forbes', 'magazine',
+				'vanity', 'cnn', 'something', 'bad luck', 'good luck', ' tv', 'radio', 'church',
+				' sun', 'sugerscape', 'classic', 'alert', 'city', 'state', 'god', 'lolgop', 'mother jones',
+				'fun bird', 'globe', 'variety', 'vogue', 'instyle']
+
 /*
 ########################################
 ==== Strings to Pull Out of Article ====
@@ -449,27 +457,11 @@ function getTweets(q, res, k, total) {
 	  	 				name = name.toLowerCase();
 
 	  	 				var org_name = false;
-	  	 				if (name.indexOf('.com')>=0 || name.indexOf('news')>=0 || 
-	  	 					name.indexOf('times')>=0 || name.indexOf('guardian')>=0 ||
-	  	 					name.indexOf('bbc')>=0 || name.indexOf('euromaidan')>=0 ||
-	  	 					name.indexOf('washington')>=0 || name.indexOf('standard')>=0 ||
-	  	 					name.indexOf('associated press')>=0 || name.indexOf('yahoo')>=0 ||
-	  	 					name.indexOf('bbc')>=0 || name.indexOf('online')>=0 ||
-	  	 					name.indexOf('daily')>=0 || name.indexOf('rt')==0 || 
-	  	 					name.indexOf('live')>=0 || name.indexOf('street')>=0 ||
-	  	 					name.indexOf('leicester')>=0 || name.indexOf('picture')>=0 ||
-	  	 					name.indexOf('history')>=0 || name.indexOf('white house')>=0 ||
-	  	 					name.indexOf('fact')>=0 || name.indexOf('histor')>=0 ||
-	  	 					name.indexOf('espn')>=0 || name.indexOf('sports')>=0 ||
-	  	 					name.indexOf('quartz')>=0 || name.indexOf('america')>=0 ||
-	  	 					name.indexOf('msn')>=0 || name.indexOf('mashable')>=0 ||
-	  	 					name.indexOf('nato')>=0 || name.indexOf('independent')>=0 ||
-	  	 					name.indexOf('market')>=0 || name.indexOf('forbes')>=0 ||
-	  	 					name.indexOf('magazine')>=0 || name.indexOf('vanity')>=0 ||
-	  	 					name.indexOf('forbes')>=0 || name.indexOf('cnn')>=0 ||
-	  	 					name.indexOf('something')>=0 || name.indexOf('bad luck')>=0 ||
-	  	 					name.indexOf(' tv')>=0 || name.indexOf('radio')>=0) {
-	  	 					org_name = true;
+	  	 				for (var sub in org_list) {
+	  	 					if (name.indexOf(org_list[sub])>=0) {
+	  	 						org_name = true;
+	  	 						break;
+	  	 					}
 	  	 				}
 
 	  	 				var tw_text = tweets.statuses[key].text;
