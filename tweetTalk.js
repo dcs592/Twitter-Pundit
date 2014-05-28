@@ -194,12 +194,14 @@ app.post('/expertSearch',function(req,res)
 
 	expert=req.body.expert;
 	T.get('users/lookup', {screen_name: expert}, function (err, data, response) {
-  	console.log(data[0].name)
-  	if(data[0].name)
-  		getQuery(url,res,expert)
-  		// res.send(data[0].name)
-
-	})
+		if(data) {
+		  	if(data[0].name) {
+		  		console.log(data[0].name);
+		  	  	getQuery(url,res,expert);
+		  		// res.send(data[0].name)
+		  	}
+		}
+	});
 
 	// console.log(url);
 	// checkIfURLinFirebase(url, res);
@@ -310,17 +312,12 @@ function getQuery(url,res,expert) {
 					tweetList = [];
 					if(expert)
 					{
-
 						expertTweet(query,res,expert);
 					}
-
 
 					else
 
 					{
-
-					
-
 
 					for (var item in query) {
 						getTweets(query[item], res, item, query.length-1);
@@ -328,64 +325,6 @@ function getQuery(url,res,expert) {
 
 				}
 				});
-
-/*				alchemyapi.entities('text', text, null, function(response) {
-					entities = response;
-					var max = 5; // max number of entities listed
-					var people_count = 0; // number of people in entities list
-					for(var entity in response['entities']) {
-						var qlen = query.length;
-						// if the number of entities matches the desired number
-						if(qlen==max) {
-							break;
-						}
-						// if the entity is a person
-						if(response['entities'][entity]['type']=='Person') {
-							// split the string
-							var person = response['entities'][entity]['text'].split(" ");
-							var len = person.length;
-							// take the last word in the list (last name)
-							person = person[len-1];
-							// if the person is already listed, don't duplicate
-							if(query.indexOf(person)==-1) {
-								query.push(person);
-								people.push(person);
-							}
-/*							people_count+= 1;
-							// for every 2 people in the entity list, find another entity
-							if(people_count==2) {
-								max+= 1;
-								people_count = 0;
-							}*/
-	/*					}
-						// if the entity is a job title
-						else if(response['entities'][entity]['type']=="JobTitle") {
-							// add it to the sublist of job positions
-							positions.push(response['entities'][entity]['text']);
-							// add it to the entity list
-							query.push(response['entities'][entity]['text']);
-							// find another entity
-							max+= 1;
-						}
-						// if the entity is not already listed
-						else if (query.indexOf(response['entities'][entity]['text'])==-1) {
-							// add it to the entity list
-							query.push(response['entities'][entity]['text']);
-						}
-
-						alchemyapi.keywords('text', text, null, function(response) {
-							console.log(response);
-						});
-					}
-*/
-					//topic = checkTopic(text);
-//					var uQ = updateQuery(query, people, positions);
-				//	var cQ = compileQueries(query);
-				// tweetList = [];
-				// for (var item in query) {
-				// 	getTweets(query[item], res, item, query.length-1);
-				// }
-				//});
 			});
 		});
 	});
