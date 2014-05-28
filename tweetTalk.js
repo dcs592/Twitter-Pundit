@@ -120,9 +120,15 @@ var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaid
 				'washington', 'press', 'yahoo', 'online', 'daily', 'rt', 'not ', 'live', 'street',
 				'leicester', 'picture', 'histor', 'white house', 'fact', 'espn', 'mashable', 'sport',
 				'quartz', 'america', 'msn', 'nato', 'independent', 'market', 'forbes', 'magazine',
-				'vanity', 'cnn', 'something', 'bad luck', 'good luck', ' tv', 'radio', 'church',
+				'vanity', 'cnn', 'something', 'bad luck', 'good luck', 'tv', 'radio', 'church',
 				' sun', 'sugerscape', 'classic', 'alert', 'city', 'state', 'god', 'lolgop', 'mother jones',
-				'fun bird', 'globe', 'variety', 'vogue', 'instyle']
+				'fun bird', 'globe', 'variety', 'vogue', 'instyle', 'reuter', 'dna', 'group', 'yorker',
+				'anonymous', 'nra', 'fox', 'nation', 'huffpost', 'series', 'abc', 'circa', 'panthers',
+				'buzz', 'tampa', 'houston', 'right', 'last word', 'republican', 'democrat', 'wwe', 'nyt',
+				'museum', 'nyc', 'propaganda', 'foundation', 'organization', 'girl', 'boy', 'opinion',
+				'local', 'nbc', 'today', 'new day', 'usa', 'wiki', 'meme', 'publica', 'apha', 'who',
+				'pitchfork', 'cp24', 'hedge', 'detroit', 'tribune', 'inc.', 'story', 'policy', 'telegraph',
+				'wsjd', 'atlantic', 'project', 'vh', 'insider', 'business', 'park', 'soccer', 'football']
 
 /*
 ########################################
@@ -633,7 +639,6 @@ function checkIfURLinFirebase(url, res) {
 			if(!error && response.statusCode == 200) {
 				if(result!='null') {
 					res.send(result);
-					//console.log(result['tweets']);
 					console.log("found");
 					return false;
 				}
