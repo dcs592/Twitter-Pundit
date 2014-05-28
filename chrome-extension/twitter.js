@@ -48,6 +48,25 @@ urlJSON={url:tablink}
         	}
          });
      }
+
+
+  function expertSearch()
+  {
+    console.log(tablink);
+    expname=$('#expert').val();
+    urlJSON={url:tablink,expert:expname}
+
+      $.ajax({
+          url: 'http://localhost:3000/expertSearch', //the URL to your node.js server that has data
+          type:'POST',
+          data:urlJSON,
+          cache: false,
+         }).done(function(data2){
+     //"data" will be JSON. Do what you want with it. 
+     console.log("success");
+       
+  });
+}
   
 // function hello1(){
 // console.log(data);
@@ -145,7 +164,7 @@ urlJSON={url:tablink}
 // }
 // }
 
-// document.getElementById('button1').addEventListener('click', hello1);
+ document.getElementById('search').addEventListener('click', expertSearch);
 // document.getElementById('button2').addEventListener('click', hello2);
 // document.getElementById('button3').addEventListener('click', hello3);
 // document.getElementById('button4').addEventListener('click', hello4);

@@ -9,6 +9,7 @@ var Firebase = require('firebase');
 
 var request = require('request');
 var express = require('express');
+var Twit=require('twit');
 var async=require('async');
 var $ = require('jquery');
 var express = require('express');
@@ -16,6 +17,12 @@ var consolidate = require('consolidate');
 
 var app= express()
 var path = require('path');
+var T = new Twit({
+    consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o'
+  , consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1'
+  , access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED'
+  , access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'
+});
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -176,6 +183,29 @@ if ('development' == app.get('env')) {
 }
 
 
+app.post('/expertSearch',function(req,res)
+{
+    res.contentType('application/json');
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    url=req.body.url;													
+	// store_url = url;
+
+	expert=req.body.expert;
+	T.get('users/lookup', {screen_name: expert}, function (err, data, response) {
+  	console.log(data[0].name)
+  	if(data[0].name)
+  		getQuery(url,res,expert)
+  		// res.send(data[0].name)
+
+	})
+
+	// console.log(url);
+	// checkIfURLinFirebase(url, res);
+});
+
+
 
 app.post('/tweetResult',function(req,res)
 {
@@ -196,7 +226,7 @@ app.post('/tweetResult',function(req,res)
 ==== Create Query Keywords ====
 ###############################
 */
-function getQuery(url,res) {
+function getQuery(url,res,expert) {
 	query = [];
 	positions = []; // sublist of job positions
 	people = []; // sublist of people
@@ -278,9 +308,25 @@ function getQuery(url,res) {
 						}
 					}
 					tweetList = [];
+					if(expert)
+					{
+
+						expertTweet(query,res,expert);
+					}
+
+
+					else
+
+					{
+
+					
+
+
 					for (var item in query) {
 						getTweets(query[item], res, item, query.length-1);
 					}
+
+				}
 				});
 
 /*				alchemyapi.entities('text', text, null, function(response) {
@@ -392,7 +438,51 @@ function compileQueries(array) {
 	return queries;
 }
 
+function expertTweet(query,res, expert)
+{
+
+console.log(query);
+console.log(expert);
+var expertTweetList=[];
+
+for ( item=0; item<query.length;item++) {
+request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&from=" + expert+"&q="+query[item],
+		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+							access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+							access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+				json: true},
+			function(error, response, tweets) {
+				if(error || !tweets) {
+					console.log("Query error")
+				}
+  	 			else {
+  	 				for(i=0;i<tweets.statuses.length;i++)
+  	 				{
+  	 					 console.log(tweets.statuses[i].text);
+  	 					 expertTweetList.push(tweets.statuses[i].text)
+  	 				}
+	  	 		
+  	 			}
+	 });
+
+ 
+
+ if(item==query.length-1)
+ {
+ 	console.log(expertTweetList)
+ 	res.send(expertTweetList)
+ }
+
+
+}
+
+}
+
+
+
 function getTweets(q, res, k, total) {
+
 	request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q,
 		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
 							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
