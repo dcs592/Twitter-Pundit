@@ -58,6 +58,8 @@ hr{
 .logo{
   float: left;
   margin-left: 20px;
+  margin-top: 5px;
+  margin-bottom: 5px;
   overflow: hidden;
 }
 
