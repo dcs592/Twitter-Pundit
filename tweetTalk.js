@@ -130,7 +130,9 @@ var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaid
 				'pitchfork', 'cp24', 'hedge', 'detroit', 'tribune', 'inc.', 'story', 'policy', 'telegraph',
 				'wsjd', 'atlantic', 'project', 'vh', 'insider', 'business', 'park', 'soccer', 'football',
 				'journal', 'ofa', 'bank', 'movie', 'vision', 'problems', 'school', 'conservative', 'liberal',
-				'progress', 'blaze', 'matters', 'media', 'what', 'nba', 'desk', 'official']
+				'progress', 'blaze', 'matters', 'media', 'what', 'nba', 'desk', 'official', 'tumblr', '.gov',
+				'climate','vox', 'club', 'the hill', 'reason', 'club', 'sincerely', 'believe', 'post', 'student',
+				'netw3rk', 'hello', 'republic', 'education']
 
 /*
 ########################################
@@ -478,6 +480,9 @@ function getTweets(q, res, k, total) {
 	  	 				}		
 	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("latest news")) {
 	  	 					corresp = 2;
+	  	 				}
+	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("parody")) {
+	  	 					org_name = true;
 	  	 				}
 
 	  	 				if (inArray==false && org_name==false && pitch==false && followers==false) {// && org_name==false && followers==false && pitch==false) {
