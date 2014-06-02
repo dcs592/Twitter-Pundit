@@ -481,9 +481,6 @@ function getTweets(q, res, k, total) {
 	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("latest news")) {
 	  	 					corresp = 2;
 	  	 				}
-	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("parody")) {
-	  	 					org_name = true;
-	  	 				}
 
 	  	 				if (inArray==false && org_name==false && pitch==false && followers==false) {// && org_name==false && followers==false && pitch==false) {
 	  	 					console.log("added");
