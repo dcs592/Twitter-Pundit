@@ -128,7 +128,9 @@ var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaid
 				'museum', 'nyc', 'propaganda', 'foundation', 'organization', 'girl', 'boy', 'opinion',
 				'local', 'nbc', 'today', 'new day', 'usa', 'wiki', 'meme', 'publica', 'apha', 'who',
 				'pitchfork', 'cp24', 'hedge', 'detroit', 'tribune', 'inc.', 'story', 'policy', 'telegraph',
-				'wsjd', 'atlantic', 'project', 'vh', 'insider', 'business', 'park', 'soccer', 'football']
+				'wsjd', 'atlantic', 'project', 'vh', 'insider', 'business', 'park', 'soccer', 'football',
+				'journal', 'ofa', 'bank', 'movie', 'vision', 'problems', 'school', 'conservative', 'liberal',
+				'progress', 'blaze', 'matters', 'media', 'what', 'nba', 'desk', 'official']
 
 /*
 ########################################
@@ -319,7 +321,6 @@ function getQuery(url,res,expert) {
 				//	console.log(response);
 					for (k in keywords['keywords']) {
 						if (k<8) {//(parseFloat(keywords['keywords'][k]['relevance'])>=.5) {
-						//	console.log(keywords['keywords'][k]['text']);
 							query.push(keywords['keywords'][k]['text']);
 						}
 					}
@@ -379,58 +380,41 @@ function compileQueries(array) {
 			}
 		}
 	}
-/*		for (var i3 in people) {
-			string = text[i] + ' ' + people[i3];
-			queries.push(string);
-		}
-		for (var i4 in positions) {
-			string = text[i] + ' ' + positions[i4];
-			queries.push(string);
-		}
-	}*/
 	return queries;
 }
 
 function expertTweet(query,res, expert)
 {
-
-console.log(query);
-console.log(expert);
-var expertTweetList=[];
-ctr=0;
-for ( item=0; item<query.length;item++) {
-request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&from=" + expert+"&q="+query[item],
-		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
-							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
-							access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
-							access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
-				json: true},
-			function(error, response, tweets) {
-				if(error || !tweets) {
-					console.log("Query error")
-				}
-  	 			else {
-  	 				for(i=0;i<tweets.statuses.length;i++)
-  	 				{
-  	 					console.log(tweets.statuses[i].user['name']);
-  	 					 expertTweetList.push({name: tweets.statuses[i].user['name'], description: tweets.statuses[i].user['description'], handle: tweets.statuses[i].user['screen_name'], pimage: tweets.statuses[i].user['profile_image_url'], tweet:tweets.statuses[i].text})
-  	 					 res.send(expertTweetList)
-  	 					 ctr++;
-  	 				}
-
-	  	 		
-  	 			}
-	 });
-
- 
-}
-
-if(ctr>0)
- {
- 	console.log(expertTweetList)
- 	res.send(expertTweetList)
- }
-
+	console.log(query);
+	console.log(expert);
+	var expertTweetList=[];
+	ctr=0;
+	for (item=0; item<query.length;item++) {
+		request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&from=" + expert+"&q="+query[item],
+				oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+									consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+									access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+									access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+						json: true},
+				function(error, response, tweets) {
+					if(error || !tweets) {
+						console.log("Query error")
+					}
+	  	 			else {
+	  	 				for(i=0;i<tweets.statuses.length;i++)
+	  	 				{
+							expertTweetList.push({name: tweets.statuses[i].user['name'], description: tweets.statuses[i].user['description'], handle: tweets.statuses[i].user['screen_name'], pimage: tweets.statuses[i].user['profile_image_url'], tweet:tweets.statuses[i].text})
+							res.send(expertTweetList)
+							ctr++;
+	  	 				}	
+	  	 			}
+		});
+	}
+	if(ctr>0)
+	{
+	 	console.log(expertTweetList)
+	 	res.send(expertTweetList)
+	}
 }
 
 
@@ -448,12 +432,9 @@ function getTweets(q, res, k, total) {
 					console.log("Query error")
 				}
   	 			else {
-  	 			//	console.log(tweets.statuses);
 	  	 			for (var key in tweets.statuses) {
 						var inArray = false;
 	  	 				for(var item in tweetList) {
-	  	 					//console.log(tweetList[item]['text']);
-	  	 					//console.log("\t" + tweets.statuses[key]['text']);
 	  	 					if (tweetList[item]['text']==tweets.statuses[key]['text']) {
 	  	 						inArray = true;
 	  	 						break;
@@ -473,9 +454,12 @@ function getTweets(q, res, k, total) {
 
 	  	 				var tw_text = tweets.statuses[key].text;
 
-	  	 				var followers = true;
-	  	 				if (tweets.statuses[key].user['followers']>=5000) {
-	  	 					followers = false;
+	  	 				var followers = false;
+	  	 				if (tweets.statuses[key].user['followers_count']<10000) {
+	  	 					followers = true;
+	  	 				}
+	  	 				if (tweets.statuses[key].user['followers_count']>1000000) {
+	  	 					followers = true;
 	  	 				}
 
 	  	 				var pitch = false;
@@ -483,20 +467,20 @@ function getTweets(q, res, k, total) {
 	  	 					pitch = true;
 	  	 				}
 
-	  	 				if(tw_text.match(/http/g)!=null) {
-	  	 					pitch = true;
-	  	 				}
-
 	  	 				var corresp = 1;
 	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("correspondent")) {
 	  	 					pitch = false;
-	  	 					corresp = 2;
-	  	 				}	
+	  	 					corresp = 3;
+	  	 				}
+	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("ambassador")) {
+	  	 					pitch = false;
+	  	 					corresp = 3;
+	  	 				}		
 	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("latest news")) {
 	  	 					corresp = 2;
 	  	 				}
 
-	  	 				if (inArray==false && org_name==false && pitch==false) {// && org_name==false && followers==false && pitch==false) {
+	  	 				if (inArray==false && org_name==false && pitch==false && followers==false) {// && org_name==false && followers==false && pitch==false) {
 	  	 					console.log("added");
 	  	 					tweets.statuses[key]['corresp'] = corresp;
 	  	 					tweetList.push(tweets.statuses[key]);
@@ -516,7 +500,6 @@ function parseTweets(tweets, res) {
 	resultJSON = [];
 	console.log("Number of tweets: " + tweets.length);
 	for (var t in tweets) {
-
 			var newJSON = {};
 			newJSON['name'] = tweets[t].user['name'];
 			newJSON['handle'] = tweets[t].user['screen_name'];
@@ -525,6 +508,7 @@ function parseTweets(tweets, res) {
 			newJSON['bimage'] = tweets[t].user['profile_banner_url'] + '/web';
 			newJSON['description']=tweets[t].user['description'];
 			newJSON['corresp'] = tweets[t].corresp;
+			newJSON['tweet_id'] = tweets[t].id;
 			resultJSON.push(newJSON);
 	}
 	if(resultJSON.length>0) {
@@ -582,6 +566,7 @@ function compareTweets(tweets, res) {
 				json[String(i)]['pimage'] = resultJSON[i]['pimage'];
 				json[String(i)]['bimage'] = resultJSON[i]['bimage'];
 				json[String(i)]['description'] = resultJSON[i]['description'];
+				json[String(i)]['tweet_id'] = resultJSON[i]['tweet_id'];
 			}
 			addURLtoFirebase(store_url, author, store_title, json, res);
 			return false;
