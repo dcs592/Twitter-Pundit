@@ -132,7 +132,9 @@ var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaid
 				'journal', 'ofa', 'bank', 'movie', 'vision', 'problems', 'school', 'conservative', 'liberal',
 				'progress', 'blaze', 'matters', 'media', 'what', 'nba', 'desk', 'official', 'tumblr', '.gov',
 				'climate','vox', 'club', 'the hill', 'reason', 'club', 'sincerely', 'believe', 'post', 'student',
-				'netw3rk', 'hello', 'republic', 'education']
+				'netw3rk', 'hello', 'republic', 'education', 'review', 'communication', 'blog', 'glasswire',
+				'updates', 'stripes', 'popular', 'science', 'energy', 'time', 'snckpck', 'engadget', 'macworld',
+				'mobile', 'entreprenuer', 'venture', 'real', 'lynch']
 
 /*
 ########################################
