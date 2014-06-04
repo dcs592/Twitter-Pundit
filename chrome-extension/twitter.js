@@ -57,6 +57,8 @@ urlJSON={url:tablink}
     console.log(tablink);
     expname=$('#expert').val();
     urlJSON={url:tablink,expert:expname}
+    document.getElementById("overlay").style.display = 'block';
+    document.getElementById("loading").style.display = 'block';
 
       $.ajax({
           url: 'http://tweettalk.nodejitsu.com/expertSearch', //the URL to your node.js server that has data
@@ -67,6 +69,14 @@ urlJSON={url:tablink}
 
           $( "#expertFeed" ).empty();
           $( "#profile" ).hide();
+          document.getElementById("overlay").style.display = 'none';
+          document.getElementById("loading").style.display = 'none';
+
+           if(data3.length==0) {
+            document.getElementById("overlay").style.display = 'block';
+            document.getElementById("noresults").style.display = 'block';
+           }
+
           data=data3;
           console.log(data3);
           var content='<br><br><br><a target="_blank" href="https://twitter.com/' + data[0].handle + '"><div class="expertblock">';

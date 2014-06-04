@@ -348,6 +348,11 @@ function expertTweet(query,res, expert)
 	console.log(query);
 	console.log(expert);
 	var expertTweetList=[];
+	console.log(expert);
+	if (expert.indexOf('@')==0) {
+		expert = expert.substr(1);	
+	}
+	console.log(expert);
 	ctr=0;
 	for (item=0; item<query.length;item++) {
 		request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&from=" + expert+"&q="+query[item],
@@ -359,6 +364,7 @@ function expertTweet(query,res, expert)
 				function(error, response, tweets) {
 					if(error || !tweets) {
 						console.log("Query error")
+						res.send(expertTweetList);
 					}
 	  	 			else {
 	  	 				for(i=0;i<tweets.statuses.length;i++)
