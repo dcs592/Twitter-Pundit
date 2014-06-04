@@ -14,6 +14,7 @@ console.log(tablink);
 urlJSON={url:tablink}
 
       $.ajax({
+          //url: 'http://pure-anchorage-2860.herokuapp.com:3000/tweetResult',
           url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
           type:'POST',
           data:urlJSON,
