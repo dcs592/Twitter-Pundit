@@ -1,19 +1,41 @@
 {
-  "name": "collegepin",
-  "version": "0.0.1",
+  "name": "TweetTalk",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
-    "express": "3.4.0",
-    "jade": "*",
-    "mongoose": "3.6.20",
+    "async": "^0.9.0",
+    "consolidate": "^0.10.0",
     "emailjs": "*",
-    "twit":"*"
+    "express": "3.4.0",
+    "firebase": "^1.0.17",
+    "jade": "*",
+    "jquery": "^2.1.1",
+    "mongoose": "3.6.20",
+    "path": "^0.4.9",
+    "request": "^2.36.0",
+    "twit": "*"
   },
   "subdomain": "twitter-pundits",
   "engines": {
     "node": "0.10.x"
-  }
+  },
+  "description": "None",
+  "main": "tweetTalk.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dcs592/Twitter-Pundit.git"
+  },
+  "keywords": [
+    "Non"
+  ],
+  "author": "",
+  "license": "NU",
+  "bugs": {
+    "url": "https://github.com/dcs592/Twitter-Pundit/issues"
+  },
+  "homepage": "https://github.com/dcs592/Twitter-Pundit"
 }

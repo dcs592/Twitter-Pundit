@@ -12,7 +12,6 @@ var express = require('express');
 var Twit=require('twit');
 var async=require('async');
 var $ = require('jquery');
-var express = require('express');
 var consolidate = require('consolidate');
 
 var app= express()
@@ -23,18 +22,6 @@ var T = new Twit({
   , access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED'
   , access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'
 });
-
-var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
- if ('OPTIONS' == req.method) {
-      res.send(200);
-    }
-    else {
-      next();
-    }
-}
 
 /*
 #################################
@@ -625,12 +612,32 @@ function checkIfURLinFirebase(url, res) {
 		var firebaseAPI = "https://tweettalk.firebaseio.com/urls/" + url + "/tweets.json";
 
 		request.get(firebaseAPI, function(error, response, result) {
-		//	console.log(result);
 			if(!error && response.statusCode == 200) {
 				if(result!='null') {
-					res.send(result);
-					console.log("found");
-					return false;
+					var dateUpdated = "https://tweettalk.firebaseio.com/urls/" + url + "/updated.json";
+					request.get(dateUpdated, function(err, resp, result2) {
+						if(!err && response.statusCode==200) {
+							var result2 = JSON.parse(result2);
+							var lastUpdated = new Date(result2['year'], result2['month'], result2['day']);
+							var today = new Date();
+							var diff = today-lastUpdated;
+							if(diff>=172800000) {
+								console.log("updating");
+								getQuery(tempurl, res);
+								return false;
+							}
+							else {
+								res.send(result);
+								console.log("found");
+								return false;
+							}
+						}
+						else {
+							console.log("not found");
+							getQuery(tempurl,res);
+							return false;;
+						}
+					});
 				}
 				else {
 					console.log("not found");
@@ -645,39 +652,6 @@ function checkIfURLinFirebase(url, res) {
 			}
 		});
 	}
-}
-
-
-function checkName(text) {
-	console.log("Inside check name");
-	var request = alchemyapi.entities('text', text, null, function(response) {
-		if((response['entities'].length==1) && (response['entities'][0]['type']=='Person')) {
-			console.log("True: " + text);
-			return true;
-		}
-		if(text.indexOf('anderson cooper')>=0) {
-			console.log("True: " + text);
-			return true;
-		}
-		else {
-		//	console.log("False: " + text);
-			return false;
-		}
-	});
-}
-
-function checkTopic(text) {
-	console.log("Inside check topic");
-	var request = alchemyapi.category('text', text, null, function(response) {
-		if(response['category']) {
-			console.log(response['category']);
-			return response['category'];
-		}
-		else {
-			console.log("No category");
-			return false;
-		}
-	});
 }
 
 
