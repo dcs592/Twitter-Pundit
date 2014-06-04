@@ -3,8 +3,8 @@
 ==== File Requirements ====
 ###########################
 */
-var AlchemyAPI = require("./alchemyapi");
-var alchemyapi = new AlchemyAPI();
+var AlchemyAPI = require("alchemy-api");
+var alchemyapi = new AlchemyAPI('68017bcdda143c99830dd2176b380769b4670263');
 var Firebase = require('firebase');
 
 var request = require('request');
@@ -239,17 +239,17 @@ function getQuery(url,res,expert) {
 	query = [];
 	positions = []; // sublist of job positions
 	people = []; // sublist of people
-	alchemyapi.text('url', url, null, function(response) {
+	alchemyapi.text(url, {}, function(err, response) {
 		//get the text from the article
 		text = response['text'];
-		alchemyapi.title('url', url, null, function(response) {
+		alchemyapi.title(url, {}, function(err, response) {
 			//get the article title
 			var art_title = response['title'];
 			store_title = art_title;
 			//combine the title and text
 			text = art_title + ' ' + text;
 
-			alchemyapi.author('url', url, null, function(response) {
+			alchemyapi.author(url, {}, function(err, response) {
 				//get the article author
 				author = response['author'];
 				//remove the author from the article
@@ -306,7 +306,7 @@ function getQuery(url,res,expert) {
 				##########################
 				*/	
 
-				alchemyapi.keywords('text', raw_text, null, function(response) {
+				alchemyapi.keywords(raw_text, {}, function(err, response) {
 					keywords = response;
 					entities = response;
 				//	console.log(response);
