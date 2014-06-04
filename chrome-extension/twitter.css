@@ -176,3 +176,22 @@ img.header0{
   text-align: center;
   z-index: 101;
 }
+
+#noresults {
+  position: absolute;
+  color: red;
+  width: 100px;
+  height: auto;
+  border-radius: 10px;
+  border: 2px solid ;
+  margin-top: 250px;
+  margin-left: 140px;
+  background: #E0E0E0;
+  border-color: rgb(44,151,162);
+  font-weight: bold;
+  font-size: large;
+  padding: 10px;
+  text-align: center;
+  z-index: 101;
+  display: none;
+}

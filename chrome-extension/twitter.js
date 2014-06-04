@@ -14,8 +14,8 @@ console.log(tablink);
 urlJSON={url:tablink}
 
       $.ajax({
-          //url: 'http://pure-anchorage-2860.herokuapp.com:3000/tweetResult',
-          url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
+          url: 'http://tweettalk.nodejitsu.com/tweetResult',
+          //url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
           type:'POST',
           data:urlJSON,
           cache: false,
@@ -23,6 +23,10 @@ urlJSON={url:tablink}
      //"data" will be JSON. Do what you want with it. 
      	 document.getElementById("overlay").style.display = 'none';
      	 document.getElementById("loading").style.display = 'none';
+       if(data2.length==0) {
+        document.getElementById("overlay").style.display = 'block';
+        document.getElementById("noresults").style.display = 'block';
+       }
 
          	data = data2;
          	console.log(data);
@@ -55,7 +59,7 @@ urlJSON={url:tablink}
     urlJSON={url:tablink,expert:expname}
 
       $.ajax({
-          url: 'http://localhost:3000/expertSearch', //the URL to your node.js server that has data
+          url: 'http://tweettalk.nodejitsu.com/expertSearch', //the URL to your node.js server that has data
           type:'POST',
           data:urlJSON,
           cache: false,

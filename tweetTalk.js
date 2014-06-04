@@ -121,7 +121,8 @@ var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaid
 				'climate','vox', 'club', 'the hill', 'reason', 'club', 'sincerely', 'believe', 'post', 'student',
 				'netw3rk', 'hello', 'republic', 'education', 'review', 'communication', 'blog', 'glasswire',
 				'updates', 'stripes', 'popular', 'science', 'energy', 'time', 'snckpck', 'engadget', 'macworld',
-				'mobile', 'entreprenuer', 'venture', 'real', 'lynch']
+				'mobile', 'entreprenuer', 'venture', 'real', 'lynch', 'years', 'environment', 'u.s.', '.org',
+				'coffee', 'dot org', 'grist', 'democracy', 'together', 'agency']
 
 /*
 ########################################
@@ -242,6 +243,10 @@ function getQuery(url,res,expert) {
 	alchemyapi.text(url, {}, function(err, response) {
 		//get the text from the article
 		text = response['text'];
+		if (text.length==0) {
+			res.send(resultJSON);
+			return false;
+		}
 		alchemyapi.title(url, {}, function(err, response) {
 			//get the article title
 			var art_title = response['title'];
@@ -307,6 +312,10 @@ function getQuery(url,res,expert) {
 				*/	
 
 				alchemyapi.keywords(raw_text, {}, function(err, response) {
+					if (response.length==0) {
+						res.send(resultJSON);
+						return false;
+					}
 					keywords = response;
 					entities = response;
 				//	console.log(response);
@@ -315,6 +324,9 @@ function getQuery(url,res,expert) {
 							query.push(keywords['keywords'][k]['text']);
 						}
 					}
+					while (query.length<8) {
+						query.push("");
+					}
 					tweetList = [];
 					if(expert)
 					{
@@ -322,56 +334,13 @@ function getQuery(url,res,expert) {
 					}
 
 					else
-
 					{
-
-					for (var item in query) {
-						getTweets(query[item], res, item, query.length-1);
+						getTweets(query, res);
 					}
-
-				}
 				});
 			});
 		});
 	});
-}
-
-function updateQuery(text, people, positions) {
-	console.log("inside update query")
-	for(var i in people) {
-		var index = text.indexOf(people[i]);
-		text.splice(index, 1);
-	}
-	for (var i in positions) {
-		var index = text.indexOf(positions[i]);
-		text.splice(index, 1);
-	}
-	return [text, people, positions];
-}
-
-function compileQueries(array) {
-	console.log("inside compileQueries")
-	var q = array;
-//	var people = array[1];
-//	var positions = array[2];
-	var queries = []
-	var string = ""
-	for (var s in searchlist) {
-		for (var i in q) {
-			string = q[i] + " " + searchlist[s];
-			queries.push(string);
-		}
-	}
-
-	for (var i in q) {
-		for (var j in q) {
-			if (i!=j) {
-				string = q[i] + ' ' + q[j];
-				queries.push(string);
-			}
-		}
-	}
-	return queries;
 }
 
 function expertTweet(query,res, expert)
@@ -410,9 +379,11 @@ function expertTweet(query,res, expert)
 
 
 
-function getTweets(q, res, k, total) {
+function getTweets(q, res) {
 
-	request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q,
+	queryResults = [];
+	console.log("inside getTweets");
+	request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[0],
 		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
 							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
 							access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
@@ -420,70 +391,214 @@ function getTweets(q, res, k, total) {
 				json: true},
 			function(error, response, tweets) {
 				if(error || !tweets) {
-					console.log("Query error")
+					console.log("Query error");
+					res.send(resultJSON);
+					return false;
 				}
   	 			else {
-	  	 			for (var key in tweets.statuses) {
-						var inArray = false;
-	  	 				for(var item in tweetList) {
-	  	 					if (tweetList[item]['text']==tweets.statuses[key]['text']) {
-	  	 						inArray = true;
-	  	 						break;
-	  	 					}
-	  	 				}
+  	 				for(var item in tweets.statuses) {
+	  	 				queryResults.push(tweets.statuses[item]);
+	  	 			}
+					request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[1],
+						oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+											consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+											access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+											access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+								json: true},
+							function(error, response, tweets) {
+								if(error || !tweets) {
+									console.log("Query error");
+									res.send(resultJSON);
+									return false;
+								}
+				  	 			else {
+				  	 				for(var item in tweets.statuses) {
+					  	 				queryResults.push(tweets.statuses[item]);
+					  	 			}
+									request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[2],
+										oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+															consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+															access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+															access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+												json: true},
+											function(error, response, tweets) {
+												if(error || !tweets) {
+													console.log("Query error");
+													res.send(resultJSON);
+													return false;
+												}
+								  	 			else {
+								  	 				for(var item in tweets.statuses) {
+									  	 				queryResults.push(tweets.statuses[item]);
+									  	 			}
+													request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[3],
+														oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+																			consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+																			access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+																			access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+																json: true},
+															function(error, response, tweets) {
+																if(error || !tweets) {
+																	console.log("Query error");
+																	res.send(resultJSON);
+																	return false;
+																}
+												  	 			else {
+												  	 				for(var item in tweets.statuses) {
+													  	 				queryResults.push(tweets.statuses[item]);
+													  	 			}
+																	request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[4],
+																		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+																							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+																							access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+																							access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+																				json: true},
+																			function(error, response, tweets) {
+																				if(error || !tweets) {
+																					console.log("Query error");
+																					res.send(resultJSON);
+																					return false;
+																				}
+																  	 			else {
+																  	 				for(var item in tweets.statuses) {
+																	  	 				queryResults.push(tweets.statuses[item]);
+																	  	 			}
+																					request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[5],
+																						oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+																											consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+																											access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+																											access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+																								json: true},
+																							function(error, response, tweets) {
+																								if(error || !tweets) {
+																									console.log("Query error");
+																									res.send(resultJSON);
+																									return false;
+																								}
+																				  	 			else {
+																				  	 				for(var item in tweets.statuses) {
+																					  	 				queryResults.push(tweets.statuses[item]);
+																					  	 			}														  	 												
+																									request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[6],
+																										oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+																															consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+																															access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+																															access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+																												json: true},
+																											function(error, response, tweets) {
+																												if(error || !tweets) {
+																													console.log("Query error");
+																													res.send(resultJSON);
+																													return false;
+																												}
+																								  	 			else {
+																								  	 				for(var item in tweets.statuses) {
+																									  	 				queryResults.push(tweets.statuses[item]);
+																									  	 			}
+																													request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[7],
+																														oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
+																																			consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
+																																			access_token:         '2436260611-zxrHNxKQJsOeUOxFBrURzX3G1K04jfA954h8dED', 
+																																			access_token_secret:  'txHfvdia6fQ7W0qkHuLJ57niYUOXcWAwfiQHCcs6rza6P'},
+																																json: true},
+																															function(error, response, tweets) {
+																																if(error || !tweets) {
+																																	console.log("Query error");
+																																	res.send(resultJSON);
+																																	return false;
+																																}
+																												  	 			else {
+																												  	 				for(var item in tweets.statuses) {
+																													  	 				queryResults.push(tweets.statuses[item]);
+																													  	 			}
+																													  	 			console.log(queryResults.length);
+																												  	 				if (queryResults.length==0) {
+																												  	 					console.log("No results");
+																												  	 					res.send(resultJSON);
+																												  	 					return false;
+																												  	 				}
+																													  	 			for (var key in queryResults) {
+																													  	 				console.log(queryResults[key]);
+																																		var inArray = false;
+																													  	 				for(var item in tweetList) {
+																													  	 					if (tweetList[item]['text']==queryResults[key]['text']) {
+																													  	 						inArray = true;
+																													  	 						break;
+																													  	 					}
+																													  	 				}
 
-	  	 				var name = tweets.statuses[key].user['name'];
-	  	 				name = name.toLowerCase();
+																													  	 				var name = queryResults[key].user['name'];
+																													  	 				name = name.toLowerCase();
 
-	  	 				var org_name = false;
-	  	 				for (var sub in org_list) {
-	  	 					if (name.indexOf(org_list[sub])>=0) {
-	  	 						org_name = true;
-	  	 						break;
-	  	 					}
-	  	 				}
+																													  	 				var org_name = false;
+																													  	 				for (var sub in org_list) {
+																													  	 					if (name.indexOf(org_list[sub])>=0) {
+																													  	 						org_name = true;
+																													  	 						break;
+																													  	 					}
+																													  	 				}
 
-	  	 				var tw_text = tweets.statuses[key].text;
+																													  	 				var tw_text = queryResults[key].text;
 
-	  	 				var followers = false;
-	  	 				if (tweets.statuses[key].user['followers_count']<10000) {
-	  	 					followers = true;
-	  	 				}
-	  	 				if (tweets.statuses[key].user['followers_count']>1000000) {
-	  	 					followers = true;
-	  	 				}
+																													  	 				var followers = false;
+																													  	 				if (queryResults[key].user['followers_count']<10000) {
+																													  	 					followers = true;
+																													  	 				}
+																													  	 				if (queryResults[key].user['followers_count']>1000000) {
+																													  	 					followers = true;
+																													  	 				}
 
-	  	 				var pitch = false;
-	  	 				if (tw_text.indexOf("tune in")>=0) {
-	  	 					pitch = true;
-	  	 				}
+																													  	 				var pitch = false;
+																													  	 				if (tw_text.indexOf("tune in")>=0) {
+																													  	 					pitch = true;
+																													  	 				}
 
-	  	 				var corresp = 1;
-	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("correspondent")) {
-	  	 					pitch = false;
-	  	 					corresp = 3;
-	  	 				}
-	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("ambassador")) {
-	  	 					pitch = false;
-	  	 					corresp = 3;
-	  	 				}		
-	  	 				if (tweets.statuses[key].user['description'].toLowerCase().indexOf("latest news")) {
-	  	 					corresp = 2;
-	  	 				}
+																													  	 				var corresp = 1;
+																													  	 				if (queryResults[key].user['description'].toLowerCase().indexOf("correspondent")) {
+																													  	 					pitch = false;
+																													  	 					corresp = 3;
+																													  	 				}
+																													  	 				if (queryResults[key].user['description'].toLowerCase().indexOf("ambassador")) {
+																													  	 					pitch = false;
+																													  	 					corresp = 3;
+																													  	 				}		
+																													  	 				if (queryResults[key].user['description'].toLowerCase().indexOf("latest news")) {
+																													  	 					corresp = 2;
+																													  	 				}
 
-	  	 				if (inArray==false && org_name==false && pitch==false && followers==false) {// && org_name==false && followers==false && pitch==false) {
-	  	 					console.log("added");
-	  	 					tweets.statuses[key]['corresp'] = corresp;
-	  	 					tweetList.push(tweets.statuses[key]);
-	  	 				}
-	  	 				if(key==(tweets.statuses.length-1)) {
-	  	 					if(k==total-1 || k==total || tweetList.length>=5) {
-	  	 						return parseTweets(tweetList, res);
-	  	 					}
-	  	 				}
-  	 			}
-  	 	}
-	 });
+																													  	 				if (inArray==false && org_name==false && pitch==false && followers==false) {// && org_name==false && followers==false && pitch==false) {
+																													  	 					console.log("added");
+																													  	 					queryResults[key]['corresp'] = corresp;
+																													  	 					tweetList.push(queryResults[key]);
+																													  	 				}
+																													  	 				if(key==(queryResults.length-1)) {
+																													  	 					return parseTweets(tweetList, res);
+																													  	 				}
+																													  	 			}
+																												  	 			}
+																												  	 		}
+																												  	);
+																												}
+																											}
+																										);
+																								}
+																							}
+																						);
+																				}
+																			}
+																		);
+																}
+															}
+														);
+												}
+											}
+										);
+								}
+							}
+						);
+				}
+			}
+		);
 }
 
 function parseTweets(tweets, res) {
@@ -508,6 +623,7 @@ function parseTweets(tweets, res) {
 	}
 	else {
 		console.log("No results");
+		res.send(resultJSON);
 		return false;
 	}
 }

@@ -1,42 +1,24 @@
 {
-  "name": "TweetTalk",
-  "version": "1.0.0",
+  "name": "Tweet_Talk",
+  "version": "1.0.0-2",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node tweetTalk.js"
   },
   "dependencies": {
-    "alchemy-api": "^1.0.2",
-    "async": "^0.9.0",
-    "consolidate": "^0.10.0",
-    "emailjs": "*",
+    "alchemy-api": "1.0.2",
+    "async": "0.9.0",
+    "consolidate": "0.10.0",
     "express": "3.4.0",
-    "firebase": "^1.0.17",
+    "firebase": "1.0.17",
     "jade": "*",
-    "jquery": "^2.1.1",
-    "mongoose": "3.6.20",
-    "path": "^0.4.9",
-    "request": "^2.36.0",
+    "jquery": "2.1.1",
+    "path": "0.4.9",
+    "request": "2.36.0",
     "twit": "*"
   },
-  "subdomain": "twitter-pundits",
+  "subdomain": "tweetTalk",
   "engines": {
     "node": "0.10.x"
-  },
-  "description": "None",
-  "main": "tweetTalk.js",
-  "devDependencies": {},
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/dcs592/Twitter-Pundit.git"
-  },
-  "keywords": [
-    "Non"
-  ],
-  "author": "",
-  "license": "NU",
-  "bugs": {
-    "url": "https://github.com/dcs592/Twitter-Pundit/issues"
-  },
-  "homepage": "https://github.com/dcs592/Twitter-Pundit"
+  }
 }
