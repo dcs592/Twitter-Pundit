@@ -1,0 +1,12 @@
+This repository includes files for the Google Chrome extension Tweet Talk. 
+
+File Overview
+	-chrome-extension: directory of UI-related files, such as the extension's HTML and CSS code, along with the in-browser Javascript that calls the server.
+	
+	-node_modules: directory of server dependencies, such as Alchemy, request, and express. Dependencies are automatically added to this directory by calling "npm install <package>" in the terminal.
+
+	-Procfile: declares the initialization on the nodejitsu server so it knows to run tweetTalk.js.
+
+	-package.json: declares rules and dependencies for the nodejitsu server.
+
+	-tweetTalk.js: node.js server that manages all calls to Twitter and Alchemy. It is currently hosted on nodejitsu, but can be run locally with "node tweetTalk.js". Note that the front-end Javascript (available in chrome-extension) must send its AJAX calls to "localhost:3000" if it is run locally. 
