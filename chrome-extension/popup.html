@@ -1,4 +1,4 @@
-
+<!-- Popup.html is the html page of the plugin which gets displayed first-->
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,17 +6,22 @@
 	<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
 </head>
 <body >
+	<!-- Load screen  -->
 	<div id="overlay"></div>
 	<div id="loading">Loading...</div>
 
 <div id="center_col">
 	<img class="logo" src="tweettalk_logo.jpg" width="100" height="100">
+	<!-- Experts are searched by twitter handle here -->
 	<input type="text" class="s"></input>
 	<br>
-	<br>
+	<br>	
 	<button class="under-input" id="search">Search Expert</button>
+	<!-- HTML code displaying the tweets from searched expert is injected here by twitter.js-->
 	<div id="expertFeed">
 	</div>
+	<!-- HTML code displaying the expert tweets generated from twitter.js is injected here -->
+
 	<div id="profile">
 	</div>
 	</div>
