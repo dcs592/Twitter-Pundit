@@ -101,7 +101,9 @@ var stoplist = ['a', "a's", 'able', 'about', 'above', 'according', 'accordingly'
 var punct_list = ['.', ',', ':', ';', "\'", "\"", '\\', '/', '?', '<', '>', '-', '_', '+', 
 '=', '~', '!', '#', '$', '%', '&', '^', '*', '[', ']', '{', '}', '(', ')', '`']
 
-var searchlist = ['believe', 'opinion', 'think'];
+/*
+==== Strings indicative of organizations ====
+*/
 
 var org_list = ['.com', 'news', 'times', 'guardian', 'politic', 'bbc', 'euromaidan', 'standard',
 				'washington', 'press', 'yahoo', 'online', 'daily', 'rt', 'not ', 'live', 'street',
@@ -134,9 +136,7 @@ var raw_text = "";
 var author = "";
 var topic;
 var query = []; // most relevant entities
-var positions = []; // sublist of job positions
-var people = []; // sublist of people
-var resultJSON = []; // stores json of relevant tweets
+var resultJSON = []; // stores jsons of relevant tweets
 var tweetList = [];
 var count = 0;
 var entities = {};
@@ -144,23 +144,10 @@ var store_url = "";
 var store_title = "";
 
 /*
-##########################
-==== Grab Article URL ====
-##########################
+###############################
+==== Set up node.js server ====
+###############################
 */
-function getURL() {
-	console.log("URL of article: ");
-	process.stdin.resume();
-	process.stdin.setEncoding('utf8');
-	var util = require('util');
-	var test;
-
-	process.stdin.on('data', function(data) {
-		var url = data.toString();
-		return getQuery(url);
-	});
-}
-
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -173,7 +160,6 @@ var allowCrossDomain = function(req, res, next) {
       next();
     }
 }
-
 
 app.set('port', process.env.PORT || 3000);
 app.set('views', __dirname + '/views');
@@ -190,7 +176,6 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-
 app.post('/expertSearch',function(req,res)
 {
     res.contentType('application/json');
@@ -206,16 +191,10 @@ app.post('/expertSearch',function(req,res)
 		  	if(data[0].name) {
 		  		console.log(data[0].name);
 		  	  	getQuery(url,res,expert);
-		  		// res.send(data[0].name)
 		  	}
 		}
 	});
-
-	// console.log(url);
-	// checkIfURLinFirebase(url, res);
 });
-
-
 
 app.post('/tweetResult',function(req,res)
 {
@@ -227,6 +206,7 @@ app.post('/tweetResult',function(req,res)
 	store_url = url;
 
 	console.log(url);
+	//search for the article url in Firebase
 	checkIfURLinFirebase(url, res);
 });
 
@@ -237,9 +217,7 @@ app.post('/tweetResult',function(req,res)
 ###############################
 */
 function getQuery(url,res,expert) {
-	query = [];
-	positions = []; // sublist of job positions
-	people = []; // sublist of people
+	query = []; //clear query list in case it is called more than once
 	alchemyapi.text(url, {}, function(err, response) {
 		//get the text from the article
 		text = response['text'];
@@ -301,10 +279,6 @@ function getQuery(url,res,expert) {
 				raw_text = raw_text.join(' ');
 				raw_text = raw_text.toLowerCase();
 
-				text = text.join(" ");
-				// make text lowercase
-				text = text.toLowerCase();
-
 				/*
 				##########################
 				==== Extract Keywords ====
@@ -313,14 +287,15 @@ function getQuery(url,res,expert) {
 
 				alchemyapi.keywords(raw_text, {}, function(err, response) {
 					if (response.length==0) {
+						//send empty list
 						res.send(resultJSON);
 						return false;
 					}
 					keywords = response;
 					entities = response;
-				//	console.log(response);
+					//use the top 8 keywords
 					for (k in keywords['keywords']) {
-						if (k<8) {//(parseFloat(keywords['keywords'][k]['relevance'])>=.5) {
+						if (k<8) {
 							query.push(keywords['keywords'][k]['text']);
 						}
 					}
@@ -328,11 +303,12 @@ function getQuery(url,res,expert) {
 						query.push("");
 					}
 					tweetList = [];
+					//if an expert was searched, use the expert search function
 					if(expert)
 					{
 						expertTweet(query,res,expert);
 					}
-
+					//otherwise search for tweets from experts related to the article
 					else
 					{
 						getTweets(query, res);
@@ -384,11 +360,19 @@ function expertTweet(query,res, expert)
 }
 
 
-
+//the general function called when the extension is clicked
+//retrieve tweets from twitter related to the article
 function getTweets(q, res) {
 
-	queryResults = [];
+	queryResults = []; //clear the results in case old results are still stored
 	console.log("inside getTweets");
+	//send a request to twitter for 'result_type=popular' results
+	//this gets really messy, but the 8 queries from 'getQuery' used
+	//in a nested format to get results from Twitter
+	//we previously had it run in a loop, but it did not always execute in order,
+	//so it would not leave the loop or would not return all of the results
+	//this format ensures it always leaves the loop if and only if it has 
+	//executed everything
 	request.get({url: "https://api.twitter.com/1.1/search/tweets.json?result_type=popular&lang=en&q=" + q[0],
 		oauth: { 	consumer_key:         'nAhDicTjMyP3fjY2z5JfxSS1o', 
 							consumer_secret:      'V5zsL7UGWYSEfB6SaF9SrAmwlwV0snDSJyavmITcOcBTHMXis1', 
@@ -402,6 +386,7 @@ function getTweets(q, res) {
 					return false;
 				}
   	 			else {
+  	 				//add the returned tweets to the array
   	 				for(var item in tweets.statuses) {
 	  	 				queryResults.push(tweets.statuses[item]);
 	  	 			}
@@ -520,23 +505,28 @@ function getTweets(q, res) {
 																													  	 			console.log(queryResults.length);
 																												  	 				if (queryResults.length==0) {
 																												  	 					console.log("No results");
+																												  	 					//send an empty list to show there are not results
 																												  	 					res.send(resultJSON);
 																												  	 					return false;
 																												  	 				}
+																												  	 				//loop through all of the returned tweets
 																													  	 			for (var key in queryResults) {
-																													  	 				console.log(queryResults[key]);
+																													  	 				//check if the tweet has already been added to the final list
 																																		var inArray = false;
 																													  	 				for(var item in tweetList) {
 																													  	 					if (tweetList[item]['text']==queryResults[key]['text']) {
 																													  	 						inArray = true;
+																													  	 						//if so, it will not be added again
 																													  	 						break;
 																													  	 					}
 																													  	 				}
 
+																													  	 				//now look at the name to see if it is an organization
 																													  	 				var name = queryResults[key].user['name'];
 																													  	 				name = name.toLowerCase();
 
 																													  	 				var org_name = false;
+																													  	 				//loop through the list given above to find matches
 																													  	 				for (var sub in org_list) {
 																													  	 					if (name.indexOf(org_list[sub])>=0) {
 																													  	 						org_name = true;
@@ -546,6 +536,7 @@ function getTweets(q, res) {
 
 																													  	 				var tw_text = queryResults[key].text;
 
+																													  	 				//check if there are too few or many followers
 																													  	 				var followers = false;
 																													  	 				if (queryResults[key].user['followers_count']<10000) {
 																													  	 					followers = true;
@@ -554,11 +545,14 @@ function getTweets(q, res) {
 																													  	 					followers = true;
 																													  	 				}
 
+																													  	 				//if it says 'tune in' it usually is just an ad for a tv/radoi show
 																													  	 				var pitch = false;
 																													  	 				if (tw_text.indexOf("tune in")>=0) {
 																													  	 					pitch = true;
 																													  	 				}
 
+																													  	 				//if the person is a correspondent, then their opinion is valuable
+																													  	 				//set a counter that is used later in determining relevance
 																													  	 				var corresp = 1;
 																													  	 				if (queryResults[key].user['description'].toLowerCase().indexOf("correspondent")) {
 																													  	 					pitch = false;
@@ -572,11 +566,13 @@ function getTweets(q, res) {
 																													  	 					corresp = 2;
 																													  	 				}
 
+																													  	 				//if the proper conditions are met, add the tweet to the final list
 																													  	 				if (inArray==false && org_name==false && pitch==false && followers==false) {// && org_name==false && followers==false && pitch==false) {
 																													  	 					console.log("added");
 																													  	 					queryResults[key]['corresp'] = corresp;
 																													  	 					tweetList.push(queryResults[key]);
 																													  	 				}
+																													  	 				//if it is the last tweet in the list, move to the next function
 																													  	 				if(key==(queryResults.length-1)) {
 																													  	 					return parseTweets(tweetList, res);
 																													  	 				}
@@ -609,8 +605,9 @@ function getTweets(q, res) {
 
 function parseTweets(tweets, res) {
 	console.log("in parse tweets");
-	resultJSON = [];
+	resultJSON = []; //clear in case old results are stored
 	console.log("Number of tweets: " + tweets.length);
+	//go through the list of tweets
 	for (var t in tweets) {
 			var newJSON = {};
 			newJSON['name'] = tweets[t].user['name'];
@@ -621,43 +618,63 @@ function parseTweets(tweets, res) {
 			newJSON['description']=tweets[t].user['description'];
 			newJSON['corresp'] = tweets[t].corresp;
 			newJSON['tweet_id'] = tweets[t].id;
+			//add them as JSON's to resultJSON
 			resultJSON.push(newJSON);
 	}
+	//move to the next function
 	if(resultJSON.length>0) {
 		compareTweets(resultJSON, res);
 		return false;
 	}
 	else {
 		console.log("No results");
+		//return an empty list to indicate nothing was found
 		res.send(resultJSON);
 		return false;
 	}
 }
 
+//find the relevance of each tweet
 function compareTweets(tweets, res) {
 	console.log("inside compare tweets");
-	var art_len = raw_text.length;
+	var art_len = raw_text.length; //number of words in the article
+	//loop through the tweets
 	for (var i=0; i < tweets.length; i++) {
+		//get the correspondent counter
 		var corresp = tweets[i].corresp;
+		//start the relevance at 0
 		var tally = 0;
+		//get the content of the tweet
 		var content = tweets[i]['text'];
 		content = content.toLowerCase();
+		//normalize it
 		for (var p in punct_list) {
 			content = content.replace(punct_list[p], '');
 		}
 		content = content.replace('\n', ' ');
 		content = content.replace('\t', ' ');
-		content = content.split(' ');
+		content = content.split(' '); // split it into an array of words
+		//loop through the words
+		//combine them in unigrams, bigrams, trigrams, etc through the entire
+		//list of words, so each individual word up to the entire tweet is
+		//compared to the article
 		for (var len = 1; len < content.length-1; len++) {
 			for (var index = 0; index < (content.length - len + 1); index++) {
+				//if the first and last words are not in the stoplist, procede
 				if (stoplist.indexOf(content[index])<0 && stoplist.indexOf(content[index+len-1])<0) {
 					var string = content.slice(index, index+len);
 					string = string.join(' ');
+					//find the position of the string in the article
 					var pos = raw_text.indexOf(string);
+					//if it is in the article, add to the relevance
 					if (pos>=0) {
+						//check if the string is a keyword returned by Alchemy
 						for (var item in entities['keywords']) {
 							if(string.indexOf(entities['keywords'][item]['text'])>=0) {
+								//get the relevance assigned by Alchemy
 								var relevance = parseFloat(entities['keywords'][item]['relevance']);
+								//use the position in the article (the higher in the article, 
+								//the higher the value) and the relevance to add to the final relevance
 								tally+= (art_len - pos)*relevance;
 								break;
 							}
@@ -666,10 +683,12 @@ function compareTweets(tweets, res) {
 				}
 			}
 		}
+		//add the relevance to it's json entry
 		tweets[i]['count'] = tally*corresp;
+		//if it is the last tweet, order the tweets based on relevance
 		if (i==(tweets.length-1)) {
 			tweets.sort(function(a,b) { return parseFloat(b.count) - parseFloat(a.count) } );
-
+			//add the import information to the json being added to Firebase
 			var json = {};
 			for (var i=0; i<resultJSON.length; i++) {
 				json[String(i)] = {};
@@ -681,15 +700,13 @@ function compareTweets(tweets, res) {
 				json[String(i)]['description'] = resultJSON[i]['description'];
 				json[String(i)]['tweet_id'] = resultJSON[i]['tweet_id'];
 			}
+			//add the information to Firebase
 			addURLtoFirebase(store_url, author, store_title, json, res);
 			return false;
 		}
 	}
 	return false;
 }
-
-console.log("Server Listening at port 3000")
-app.listen(3000);
 
 /*
 #################################
@@ -699,61 +716,79 @@ app.listen(3000);
 var myDataRef = new Firebase('https://tweettalk.firebaseio.com/');
 
 function addURLtoFirebase(url, author, title, tweets, res) {
+	//strip the url of punctuation so it can be used as a key in Firebase
 	for(var p in punct_list) {
 		while(url.indexOf(punct_list[p])>=0) {
 			url = url.replace(punct_list[p], '');
 		}
 	}
+	//get day's date
 	var today = new Date();
 	var dd = today.getDate();
 	var mm = today.getMonth();
 	var yy = today.getFullYear();
 	var date = {'day': dd, 'month': mm, 'year': yy};
 	console.log("addingurl");
+	//store the author, title, tweets, and date in Firebase
 	myDataRef.child('urls').child(url).set({
 		'author': author,
 		'title': title,
 		'tweets': tweets,
 		'updated': date
 	});
+	//return the results from Firebase
+	//this seems inefficient, but it works around js' asynchronous functions
+	//otherwise it returns inaccurate results for some reason
 	checkIfURLinFirebase(url, res);
-//	res.send(tweets);
 	return false;
 }
 
+//search for url stored in database
 function checkIfURLinFirebase(url, res) {
 	console.log("searching database")
 	if(url) {
 		var tempurl = url;
+		//remove all punctuation in the url
+		//(because of key requirements in Firebase)
 		for(var p in punct_list) {
 			while(url.indexOf(punct_list[p])>=0) {
 				url = url.replace(punct_list[p], '');
 			}
 		}
-	
+		//search firebase
 		var firebaseAPI = "https://tweettalk.firebaseio.com/urls/" + url + "/tweets.json";
 
 		request.get(firebaseAPI, function(error, response, result) {
 			if(!error && response.statusCode == 200) {
 				if(result!='null') {
+					//if the entry exists, retrieve it's 'last updated' date
 					var dateUpdated = "https://tweettalk.firebaseio.com/urls/" + url + "/updated.json";
 					request.get(dateUpdated, function(err, resp, result2) {
 						if(!err && response.statusCode==200) {
+							//it returns as a string, so parse it into a JSON
+							//for evaluation
 							var result2 = JSON.parse(result2);
+							//create a date with the results
 							var lastUpdated = new Date(result2['year'], result2['month'], result2['day']);
+							//create today's date
 							var today = new Date();
+							//find the difference in milliseconds
 							var diff = today-lastUpdated;
+							//if more than 2 days have passed, run queries as if
+							//it weren't in the database at all
 							if(diff>=172800000) {
 								console.log("updating");
 								getQuery(tempurl, res);
 								return false;
 							}
+							//otherwise return the results
 							else {
 								res.send(result);
 								console.log("found");
 								return false;
 							}
 						}
+		//if nothing is listed in Firebase, continue with the search
 						else {
 							console.log("not found");
 							getQuery(tempurl,res);
@@ -776,7 +811,8 @@ function checkIfURLinFirebase(url, res) {
 	}
 }
 
-
+console.log("Server Listening at port 3000")
+app.listen(3000);
 
 
 
