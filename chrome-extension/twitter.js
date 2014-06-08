@@ -14,8 +14,8 @@ console.log(tablink);
 urlJSON={url:tablink}
 
       $.ajax({
-          url: 'http://tweettalk.nodejitsu.com/tweetResult',
-          //url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
+          //url: 'http://pure-anchorage-2860.herokuapp.com:3000/tweetResult',
+          url: 'http://localhost:3000/tweetResult', //the URL to your node.js server that has data
           type:'POST',
           data:urlJSON,
           cache: false,
@@ -23,10 +23,6 @@ urlJSON={url:tablink}
      //"data" will be JSON. Do what you want with it. 
      	 document.getElementById("overlay").style.display = 'none';
      	 document.getElementById("loading").style.display = 'none';
-       if(data2.length==0) {
-        document.getElementById("overlay").style.display = 'block';
-        document.getElementById("noresults").style.display = 'block';
-       }
 
          	data = data2;
          	console.log(data);
@@ -57,11 +53,9 @@ urlJSON={url:tablink}
     console.log(tablink);
     expname=$('#expert').val();
     urlJSON={url:tablink,expert:expname}
-    document.getElementById("overlay").style.display = 'block';
-    document.getElementById("loading").style.display = 'block';
 
       $.ajax({
-          url: 'http://tweettalk.nodejitsu.com/expertSearch', //the URL to your node.js server that has data
+          url: 'http://localhost:3000/expertSearch', //the URL to your node.js server that has data
           type:'POST',
           data:urlJSON,
           cache: false,
@@ -69,14 +63,6 @@ urlJSON={url:tablink}
 
           $( "#expertFeed" ).empty();
           $( "#profile" ).hide();
-          document.getElementById("overlay").style.display = 'none';
-          document.getElementById("loading").style.display = 'none';
-
-           if(data3.length==0) {
-            document.getElementById("overlay").style.display = 'block';
-            document.getElementById("noresults").style.display = 'block';
-           }
-
           data=data3;
           console.log(data3);
           var content='<br><br><br><a target="_blank" href="https://twitter.com/' + data[0].handle + '"><div class="expertblock">';
@@ -87,7 +73,6 @@ urlJSON={url:tablink}
           content += '</tr>'+'<tr>';
           content += '<td id="handle">'+'@'+data[0].handle+'</td>';
           content += '</td></table></a>';
-          //content += '<p id="t_des">'+data[i].description+'</p>';
           
 
           for(i=0;i<data3.length;i++)
@@ -97,7 +82,6 @@ urlJSON={url:tablink}
           content += '</div><br><br><div id="middle"></div><br><br>';
           $(content).appendTo("#expertFeed");
           }
-          //$( "#profile" ).hide();
      //"data" will be JSON. Do what you want with it. 
      console.log("success");
        

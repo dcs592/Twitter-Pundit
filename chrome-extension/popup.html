@@ -4,27 +4,17 @@
 <head>
 	<link rel="stylesheet" style="text/class" href="twitter.css">
 	<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
-	<script type="text/javascript">
-	  $(function () {
-      $(document).tooltip({
-          content: function () {
-              return $(this).prop('title');
-          }
-      });
-  });
-	</script>
 </head>
 <body >
 	<div id="overlay"></div>
 	<div id="loading">Loading...</div>
-	<div id="noresults">No results</div>
 
-<div id="center_col" class="middle_col">
+<div id="center_col">
 	<img class="logo" src="tweettalk_logo.jpg" width="100" height="100">
-	<input type="text" id="expert" class="s"></input>
+	<input type="text" class="s"></input>
 	<br>
 	<br>
-	<button class="under-input" id="search" placeholder="@example">Search Expert</button>
+	<button class="under-input" id="search">Search Expert</button>
 	<div id="expertFeed">
 	</div>
 	<div id="profile">
